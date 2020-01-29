@@ -11,6 +11,10 @@
   Create tool agnostic monorepo workflows
 </p>
 
+<p align="center">
+  <img alt="Build status" src="https://github.com/shanewilson/repkgs/workflows/CI/badge.svg">
+</p>
+
 ## Getting Started
 
 ### Development
