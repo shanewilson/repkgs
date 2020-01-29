@@ -1,0 +1,11 @@
+{
+  "name": "@berry/worktree",
+  "private": true,
+  "workspaces": [
+    "workspace-a",
+    "workspace-b"
+  ],
+  "scripts": {
+    "test": "yarn workspaces list --json"
+  }
+}

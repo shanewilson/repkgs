@@ -1,0 +1,11 @@
+{
+  "name": "@workspace-a/worktree",
+  "private": true,
+  "workspaces": [
+    "package-a",
+    "package-b"
+  ],
+  "scripts": {
+    "pwd": "pwd"
+  }
+}

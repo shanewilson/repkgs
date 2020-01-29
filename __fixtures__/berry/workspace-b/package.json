@@ -1,0 +1,8 @@
+{
+  "name": "@workspace-b/worktree",
+  "private": true,
+  "workspaces": [
+    "package-a",
+    "package-b"
+  ]
+}

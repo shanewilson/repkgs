@@ -1,0 +1,23 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
+  "rushVersion": "5.19.1",
+  "pnpmVersion": "2.15.1",
+  "projects": [
+    {
+      "packageName": "@workspace-a/package-a",
+      "projectFolder": "workspace-a/package-a"
+    },
+    {
+      "packageName": "@workspace-a/package-b",
+      "projectFolder": "workspace-a/package-b"
+    },
+    {
+      "packageName": "@workspace-b/package-a",
+      "projectFolder": "workspace-b/package-a"
+    },
+    {
+      "packageName": "@workspace-b/package-b",
+      "projectFolder": "workspace-b/package-b"
+    }
+  ]
+}
