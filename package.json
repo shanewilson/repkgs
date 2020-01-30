@@ -15,7 +15,7 @@
       "<rootDir>/__tests__/"
     ],
     "transformIgnorePatterns": [
-      "/node_modules/(?!@glennsl/*|bs-platform|wonka).+\\.js$"
+      "/node_modules/(?!@glennsl/*|bs-platform|wonka|decco).+\\.js$"
     ]
   },
   "devDependencies": {
@@ -34,12 +34,10 @@
     "problems": "tsc --noEmit"
   },
   "dependencies": {
-    "@glennsl/bs-json": "^5.0.2",
-    "@microsoft/rush-lib": "^5.19.4",
-    "@pnpm/constants": "^3.0.0",
+    "decco": "^1.1.1",
     "execa": "^4.0.0",
-    "find-packages": "^7.0.2",
-    "read-yaml": "^1.1.0",
+    "fast-glob": "^3.1.1",
+    "js-yaml": "^3.13.1",
     "wonka": "^4.0.7"
   }
 }
