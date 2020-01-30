@@ -32,11 +32,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       },
       {
         "name": "@workspace-a/package-a",
-        "reference": "workspace:workspace-a/package-a"
+        "reference": "workspace:workspace-a/packages/package-a"
       },
       {
         "name": "@workspace-a/package-b",
-        "reference": "workspace:workspace-a/package-b"
+        "reference": "workspace:workspace-a/packages/package-b"
       },
       {
         "name": "@workspace-b/package-a",
@@ -51,8 +51,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
     "ignorePatternData": "(^(?:\\.vscode\\/pnpify(?:\\/(?!\\.)(?:(?:(?!(?:^|\\/)\\.).)*?)|$))$)",
     "fallbackExclusionList": [
       ["@berry/worktree", ["workspace:."]],
-      ["@workspace-a/package-a", ["workspace:workspace-a/package-a"]],
-      ["@workspace-a/package-b", ["workspace:workspace-a/package-b"]],
+      ["@workspace-a/package-a", ["workspace:workspace-a/packages/package-a"]],
+      ["@workspace-a/package-b", ["workspace:workspace-a/packages/package-b"]],
       ["@workspace-a/worktree", ["workspace:workspace-a"]],
       ["@workspace-b/package-a", ["workspace:workspace-b/package-a"]],
       ["@workspace-b/package-b", ["workspace:workspace-b/package-b"]],
@@ -63,6 +63,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
     "locationDiscardData": [
     ],
     "locationLengthData": [
+      33,
       24,
       14,
       2
@@ -86,19 +87,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@workspace-a/package-a", [
-        ["workspace:workspace-a/package-a", {
-          "packageLocation": "./workspace-a/package-a/",
+        ["workspace:workspace-a/packages/package-a", {
+          "packageLocation": "./workspace-a/packages/package-a/",
           "packageDependencies": [
-            ["@workspace-a/package-a", "workspace:workspace-a/package-a"]
+            ["@workspace-a/package-a", "workspace:workspace-a/packages/package-a"]
           ],
           "linkType": "SOFT"
         }]
       ]],
       ["@workspace-a/package-b", [
-        ["workspace:workspace-a/package-b", {
-          "packageLocation": "./workspace-a/package-b/",
+        ["workspace:workspace-a/packages/package-b", {
+          "packageLocation": "./workspace-a/packages/package-b/",
           "packageDependencies": [
-            ["@workspace-a/package-b", "workspace:workspace-a/package-b"]
+            ["@workspace-a/package-b", "workspace:workspace-a/packages/package-b"]
           ],
           "linkType": "SOFT"
         }]

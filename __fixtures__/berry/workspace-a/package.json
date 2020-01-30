@@ -2,8 +2,7 @@
   "name": "@workspace-a/worktree",
   "private": true,
   "workspaces": [
-    "package-a",
-    "package-b"
+    "packages/*"
   ],
   "scripts": {
     "pwd": "pwd"
