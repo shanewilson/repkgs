@@ -10,15 +10,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@workspace-a/package-a@workspace:workspace-a/package-a":
+"@workspace-a/package-a@workspace:workspace-a/packages/package-a":
   version: 0.0.0-use.local
-  resolution: "@workspace-a/package-a@workspace:workspace-a/package-a"
+  resolution: "@workspace-a/package-a@workspace:workspace-a/packages/package-a"
   languageName: unknown
   linkType: soft
 
-"@workspace-a/package-b@workspace:workspace-a/package-b":
+"@workspace-a/package-b@workspace:workspace-a/packages/package-b":
   version: 0.0.0-use.local
-  resolution: "@workspace-a/package-b@workspace:workspace-a/package-b"
+  resolution: "@workspace-a/package-b@workspace:workspace-a/packages/package-b"
   languageName: unknown
   linkType: soft
 

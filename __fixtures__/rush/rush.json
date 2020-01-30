@@ -5,11 +5,11 @@
   "projects": [
     {
       "packageName": "@workspace-a/package-a",
-      "projectFolder": "workspace-a/package-a"
+      "projectFolder": "workspace-a/packages/package-a"
     },
     {
       "packageName": "@workspace-a/package-b",
-      "projectFolder": "workspace-a/package-b"
+      "projectFolder": "workspace-a/packages/package-b"
     },
     {
       "packageName": "@workspace-b/package-a",
