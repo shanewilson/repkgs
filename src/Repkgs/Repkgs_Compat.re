@@ -1,37 +1,47 @@
 module Bs = Repkgs_Bs;
 module Utils = Repkgs_Utils;
 
+// find root
+
 module Common = {
+  type matched = {
+    absolute: string,
+    worktree: bool,
+  };
+
   let readJson = paths =>
     switch (paths->Utils.read) {
     | res => res->Js.Json.parseExn
     | exception _ => "{}"->Js.Json.parseExn
     };
+
   let readYaml = paths =>
     switch (paths->Utils.read) {
     | res => res->Bs.Yaml.read
     | exception _ => "{}"->Js.Json.parseExn
     };
+
   let parse = (json, decode) => json |> decode |> Belt.Result.getExn;
-  let rec packages =
-          (cwd, ~manifest, ~patterns, ~absolute=true, ~nested=false, ()) =>
-    [|cwd, manifest|]
-    ->patterns
-    ->Utils.findPatternMatches(Bs.FastGlob.options(~cwd, ~absolute, ()))
-    ->(
-        workspaces =>
-          nested
-            ? switch (workspaces) {
-              | [||] => [|cwd|]
-              | _ =>
-                workspaces
-                ->Belt.Array.map(x =>
-                    packages(x, ~manifest, ~patterns, ~absolute, ~nested, ())
-                  )
-                ->Belt.Array.concatMany
-              }
-            : workspaces
-      );
+
+  let rec packages = (cwd, ~patterns, ~nested=false, ()) => {
+    let ws =
+      cwd
+      ->patterns
+      ->Utils.findPatternMatches(
+          Bs.FastGlob.options(~cwd, ~absolute=true, ()),
+        );
+
+    nested
+      ? switch (ws) {
+        | [||] => [|{absolute: cwd, worktree: false}|]
+        | _ =>
+          ws
+          ->Belt.Array.map(w => packages(w, ~patterns, ~nested, ()))
+          ->Belt.Array.concatMany
+          ->Belt.Array.concat([|{absolute: cwd, worktree: true}|])
+        }
+      : Belt.Array.map(ws, w => {absolute: w, worktree: false});
+  };
 };
 
 module Pnpm = {
@@ -47,9 +57,9 @@ module Pnpm = {
 
   let parse = json => json->Common.parse(t_decode);
 
-  let patterns = path => path->read->parse->(m => m.packages);
+  let patterns = path => [|path, manifest|]->read->parse->(m => m.packages);
 
-  let packages = cwd => cwd->Common.packages(~manifest, ~patterns, ());
+  let packages = cwd => cwd->Common.packages(~patterns, ());
 };
 
 module Rush = {
@@ -69,9 +79,13 @@ module Rush = {
   let parse = json => json->Common.parse(t_decode);
 
   let patterns = path =>
-    path->read->parse->(m => m.projects)->Belt.Array.map(p => p.projectFolder);
+    [|path, manifest|]
+    ->read
+    ->parse
+    ->(m => m.projects)
+    ->Belt.Array.map(p => p.projectFolder);
 
-  let packages = cwd => cwd->Common.packages(~manifest, ~patterns, ());
+  let packages = cwd => cwd->Common.packages(~patterns, ());
 };
 
 module Yarn_V1 = {
@@ -87,9 +101,9 @@ module Yarn_V1 = {
 
   let parse = json => json->Common.parse(t_decode);
 
-  let patterns = path => path->read->parse->(m => m.workspaces);
+  let patterns = path => [|path, manifest|]->read->parse->(m => m.workspaces);
 
-  let packages = cwd => cwd->Common.packages(~manifest, ~patterns, ());
+  let packages = cwd => cwd->Common.packages(~patterns, ());
 };
 
 module Yarn_V2 = {
@@ -105,8 +119,7 @@ module Yarn_V2 = {
 
   let parse = json => json->Common.parse(t_decode);
 
-  let patterns = path => path->read->parse->(m => m.workspaces);
+  let patterns = path => [|path, manifest|]->read->parse->(m => m.workspaces);
 
-  let packages = cwd =>
-    cwd->Common.packages(~manifest, ~patterns, ~nested=true, ());
+  let packages = cwd => cwd->Common.packages(~patterns, ~nested=true, ());
 };
