@@ -1,6 +1,6 @@
 module Bs = Repkgs_Bs;
 
-let read = paths => paths->Node.Path.join->Node.Fs.readFileSync(`utf8);
+let read = paths => paths->Node.Path.join->Node.Fs.readFileAsUtf8Sync;
 
 let pathToManifest = glob => glob->Node.Path.join2("/package.json");
 
