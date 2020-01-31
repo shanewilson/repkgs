@@ -4,6 +4,7 @@ module Utils = Repkgs_Utils;
 // find root
 
 module Common = {
+  [@genType]
   type matched = {
     absolute: string,
     worktree: bool,
