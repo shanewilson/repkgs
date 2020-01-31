@@ -24,18 +24,19 @@ let compareArrays = (arr1, arr2) =>
   |> expect
   |> toEqual(arr2 |> Belt.SortArray.String.stableSort);
 
-let comparePaths = (cwd, fn, arr2) =>
+let comparePaths = (cwd, fn: string => array(Common.matched), arr2) =>
   cwd
-  |> fn
-  |> Belt.Array.map(_, to_ => Node.Path.relative(~from=cwd, ~to_, ()))
-  |> compareArrays(arr2);
+  ->fn
+  ->Belt.Array.map(ws => Node.Path.relative(~from=cwd, ~to_=ws.absolute, ()))
+  ->compareArrays(arr2);
 
 describe("Compat", () => {
   describe("Pnpm", () => {
     let cwd = Node.Path.join2(fixturesDir, "pnpm");
     test("patterns", () =>
-      compareArrays(Pnpm.patterns([|cwd, Pnpm.manifest|]), patterns)
+      compareArrays(patterns, cwd->Pnpm.patterns)
     );
+
     test("packages", () =>
       comparePaths(cwd, Pnpm.packages, dirs)
     );
@@ -43,7 +44,7 @@ describe("Compat", () => {
   describe("Rush", () => {
     let cwd = Node.Path.join2(fixturesDir, "rush");
     test("patterns", () =>
-      compareArrays(Rush.patterns([|cwd, Rush.manifest|]), dirs)
+      compareArrays(cwd->Rush.patterns, dirs)
     );
     test("packages", () =>
       comparePaths(cwd, Rush.packages, dirs)
@@ -52,7 +53,7 @@ describe("Compat", () => {
   describe("Yarn_V1", () => {
     let cwd = Node.Path.join2(fixturesDir, "yarn");
     test("patterns", () =>
-      compareArrays(Yarn_V1.patterns([|cwd, Yarn_V1.manifest|]), patterns)
+      compareArrays(cwd->Yarn_V1.patterns, patterns)
     );
     test("packages", () =>
       comparePaths(cwd, Yarn_V1.packages, dirs)
@@ -61,7 +62,19 @@ describe("Compat", () => {
   describe("Yarn_V2", () => {
     let cwd = Node.Path.join2(fixturesDir, "berry");
     test("packages", () =>
-      comparePaths(cwd, Yarn_V2.packages, dirs)
+      comparePaths(
+        cwd,
+        Yarn_V2.packages,
+        [|
+          "",
+          "workspace-a",
+          "workspace-a/packages/package-a",
+          "workspace-a/packages/package-b",
+          "workspace-b",
+          "workspace-b/package-a",
+          "workspace-b/package-b",
+        |],
+      )
     );
   });
 });
