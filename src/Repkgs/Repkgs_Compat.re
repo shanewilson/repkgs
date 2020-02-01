@@ -24,6 +24,48 @@ module Common = {
 
   let parse = (json, decode) => json |> decode |> Belt.Result.getExn;
 
+  let rec findClosestWorktree = (path, patterns) => {
+    let cwd = Node.Path.resolve(path, "");
+    let ws = cwd->patterns;
+
+    switch (cwd) {
+    | cwd when cwd == Node.Path.parse(cwd)##root =>
+      Belt.Result.Error("No Workspace Found")
+    | _ =>
+      switch (ws) {
+      | [||] =>
+        findClosestWorktree(
+          cwd->Node.Path.join2("..")->Node.Path.normalize,
+          patterns,
+        )
+      | _ => Belt.Result.Ok(cwd)
+      }
+    };
+  };
+
+  let rec findHighestWorktree = (path, patterns, ~closest=None, ()) => {
+    let cwd = Node.Path.resolve(path, "");
+    let ws = cwd->patterns;
+
+    switch (cwd) {
+    | cwd when cwd == Node.Path.parse(cwd)##root =>
+      switch (closest) {
+      | Some(closest) => Belt.Result.Ok(closest)
+      | None => Belt.Result.Error("No Workspace Found")
+      }
+    | _ =>
+      let fhw =
+        findHighestWorktree(
+          cwd->Node.Path.join2("..")->Node.Path.normalize,
+          patterns,
+        );
+      switch (ws) {
+      | [||] => fhw(~closest, ())
+      | _ => fhw(~closest=Some(cwd), ())
+      };
+    };
+  };
+
   let rec packages = (cwd, ~patterns, ~nested=false, ()) => {
     let ws =
       cwd
@@ -60,6 +102,8 @@ module Pnpm = {
 
   let patterns = path => [|path, manifest|]->read->parse->(m => m.packages);
 
+  let findRoot = path => path->Common.findClosestWorktree(patterns);
+
   let packages = cwd => cwd->Common.packages(~patterns, ());
 };
 
@@ -86,6 +130,8 @@ module Rush = {
     ->(m => m.projects)
     ->Belt.Array.map(p => p.projectFolder);
 
+  let findRoot = path => path->Common.findClosestWorktree(patterns);
+
   let packages = cwd => cwd->Common.packages(~patterns, ());
 };
 
@@ -104,6 +150,8 @@ module Yarn_V1 = {
 
   let patterns = path => [|path, manifest|]->read->parse->(m => m.workspaces);
 
+  let findRoot = path => path->Common.findClosestWorktree(patterns);
+
   let packages = cwd => cwd->Common.packages(~patterns, ());
 };
 
@@ -121,6 +169,8 @@ module Yarn_V2 = {
   let parse = json => json->Common.parse(t_decode);
 
   let patterns = path => [|path, manifest|]->read->parse->(m => m.workspaces);
+
+  let findRoot = path => path->Common.findHighestWorktree(patterns, ());
 
   let packages = cwd => cwd->Common.packages(~patterns, ~nested=true, ());
 };

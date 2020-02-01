@@ -32,35 +32,147 @@ let comparePaths = (cwd, fn: string => array(Common.matched), arr2) =>
 
 describe("Compat", () => {
   describe("Pnpm", () => {
+    let dir = "pnpm";
     let cwd = Node.Path.join2(fixturesDir, "pnpm");
+
     test("patterns", () =>
       compareArrays(patterns, cwd->Pnpm.patterns)
     );
+
+    describe("findRoot", () => {
+      test("find root at root", () =>
+        cwd
+        |> Pnpm.findRoot
+        |> Belt.Result.getExn
+        |> Node.Path.relative(~from=fixturesDir, ~to_=_, ())
+        |> expect
+        |> toEqual(dir)
+      );
+      test("find root from subdirectory", () =>
+        Node.Path.join([|cwd, "workspace-a", "package-a"|])
+        |> Pnpm.findRoot
+        |> Belt.Result.getExn
+        |> Node.Path.relative(~from=fixturesDir, ~to_=_, ())
+        |> expect
+        |> toEqual(dir)
+      );
+      test("throw when no workspace found", () =>
+        "/nothing"
+        |> Pnpm.findRoot
+        |> Belt.Result.isError
+        |> expect
+        |> toEqual(true)
+      );
+    });
 
     test("packages", () =>
       comparePaths(cwd, Pnpm.packages, dirs)
     );
   });
   describe("Rush", () => {
-    let cwd = Node.Path.join2(fixturesDir, "rush");
+    let dir = "rush";
+    let cwd = Node.Path.join2(fixturesDir, dir);
     test("patterns", () =>
       compareArrays(cwd->Rush.patterns, dirs)
     );
+
+    describe("findRoot", () => {
+      test("find root at root", () =>
+        cwd
+        |> Rush.findRoot
+        |> Belt.Result.getExn
+        |> Node.Path.relative(~from=fixturesDir, ~to_=_, ())
+        |> expect
+        |> toEqual(dir)
+      );
+      test("find root from subdirectory", () =>
+        Node.Path.join([|cwd, "workspace-a", "package-a"|])
+        |> Rush.findRoot
+        |> Belt.Result.getExn
+        |> Node.Path.relative(~from=fixturesDir, ~to_=_, ())
+        |> expect
+        |> toEqual(dir)
+      );
+      test("throw when no workspace found", () =>
+        "/nothing"
+        |> Rush.findRoot
+        |> Belt.Result.isError
+        |> expect
+        |> toEqual(true)
+      );
+    });
+
     test("packages", () =>
       comparePaths(cwd, Rush.packages, dirs)
     );
   });
   describe("Yarn_V1", () => {
-    let cwd = Node.Path.join2(fixturesDir, "yarn");
+    let dir = "yarn";
+    let cwd = Node.Path.join2(fixturesDir, dir);
     test("patterns", () =>
       compareArrays(cwd->Yarn_V1.patterns, patterns)
     );
+
+    describe("findRoot", () => {
+      test("find root at root", () =>
+        cwd
+        |> Yarn_V1.findRoot
+        |> Belt.Result.getExn
+        |> Node.Path.relative(~from=fixturesDir, ~to_=_, ())
+        |> expect
+        |> toEqual(dir)
+      );
+      test("find root from subdirectory", () =>
+        Node.Path.join([|cwd, "workspace-a", "package-a"|])
+        |> Yarn_V1.findRoot
+        |> Belt.Result.getExn
+        |> Node.Path.relative(~from=fixturesDir, ~to_=_, ())
+        |> expect
+        |> toEqual(dir)
+      );
+      test("throw when no workspace found", () =>
+        "/nothing"
+        |> Yarn_V1.findRoot
+        |> Belt.Result.isError
+        |> expect
+        |> toEqual(true)
+      );
+    });
+
     test("packages", () =>
       comparePaths(cwd, Yarn_V1.packages, dirs)
     );
   });
   describe("Yarn_V2", () => {
-    let cwd = Node.Path.join2(fixturesDir, "berry");
+    let dir = "berry";
+    let cwd = Node.Path.join2(fixturesDir, dir);
+
+    describe("findRoot", () => {
+      test("find root at root", () =>
+        cwd
+        |> Yarn_V2.findRoot
+        |> Belt.Result.getExn
+        |> Node.Path.relative(~from=fixturesDir, ~to_=_, ())
+        |> expect
+        |> toEqual(dir)
+      );
+      test("find root from subdirectory", () =>
+        Node.Path.join([|cwd, "workspace-a", "package-a"|])
+        |> Yarn_V2.findRoot
+        |> Belt.Result.getExn
+        |> Node.Path.relative(~from=fixturesDir, ~to_=_, ())
+        |> expect
+        |> toEqual(dir)
+      );
+      test("throw when no workspace found", () =>
+        "/nothing"
+        |> Yarn_V2.findRoot
+        |> Belt.Result.isError
+        |> expect
+        |> toEqual(true)
+      );
+    });
+
     test("packages", () =>
       comparePaths(
         cwd,
