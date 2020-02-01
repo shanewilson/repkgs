@@ -43,12 +43,14 @@ module Common = {
     };
   };
 
-  let rec findHighestWorktree = (path, patterns, ~closest=None, ()) => {
+  let rec findHighestWorktree = (path, patterns, ~closest=None, ~depth=3, ()) => {
     let cwd = Node.Path.resolve(path, "");
+    Js.log(cwd);
+    Js.log(depth);
     let ws = cwd->patterns;
 
     switch (cwd) {
-    | cwd when cwd == Node.Path.parse(cwd)##root =>
+    | cwd when depth === 0 || cwd == Node.Path.parse(cwd)##root =>
       switch (closest) {
       | Some(closest) => Belt.Result.Ok(closest)
       | None => Belt.Result.Error("No Workspace Found")
@@ -60,8 +62,8 @@ module Common = {
           patterns,
         );
       switch (ws) {
-      | [||] => fhw(~closest, ())
-      | _ => fhw(~closest=Some(cwd), ())
+      | [||] => fhw(~closest, ~depth=depth - 1, ())
+      | _ => fhw(~closest=Some(cwd), ~depth=3, ())
       };
     };
   };
@@ -154,7 +156,7 @@ module Yarn_V1 = {
 
   let patterns = path => [|path, manifest|]->read->parse->(m => m.workspaces);
 
-  let findRoot = path => path->Common.findClosestWorktree(patterns);
+  let findRoot = path => path->Common.findHighestWorktree(patterns, ());
 
   let packages = cwd => cwd->Common.packages(~patterns, ());
 

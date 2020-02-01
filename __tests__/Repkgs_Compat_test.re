@@ -191,7 +191,7 @@ describe("Compat", () => {
   });
   describe("detect", () => {
     describe("Pnpm workspace", () => {
-      let dir = "pnpm";
+      let dir = "pnpm/workspace-a";
       let cwd = Node.Path.join2(fixturesDir, dir);
       test("Pnpm", () =>
         cwd |> Pnpm.detect |> expect |> toBe(true)
@@ -207,7 +207,7 @@ describe("Compat", () => {
       );
     });
     describe("Rush workspace", () => {
-      let dir = "rush";
+      let dir = "rush/workspace-a";
       let cwd = Node.Path.join2(fixturesDir, dir);
       test("Pnpm", () =>
         cwd |> Pnpm.detect |> expect |> toBe(false)
@@ -223,7 +223,7 @@ describe("Compat", () => {
       );
     });
     describe("Yarn_V1 workspace", () => {
-      let dir = "yarn";
+      let dir = "yarn/workspace-a";
       let cwd = Node.Path.join2(fixturesDir, dir);
       test("Pnpm", () =>
         cwd |> Pnpm.detect |> expect |> toBe(false)
@@ -239,7 +239,7 @@ describe("Compat", () => {
       );
     });
     describe("Yarn_V2 workspace", () => {
-      let dir = "berry";
+      let dir = "berry/workspace-a";
       let cwd = Node.Path.join2(fixturesDir, dir);
       test("Pnpm", () =>
         cwd |> Pnpm.detect |> expect |> toBe(false)
