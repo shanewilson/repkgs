@@ -189,4 +189,70 @@ describe("Compat", () => {
       )
     );
   });
+  describe("detect", () => {
+    describe("Pnpm workspace", () => {
+      let dir = "pnpm";
+      let cwd = Node.Path.join2(fixturesDir, dir);
+      test("Pnpm", () =>
+        cwd |> Pnpm.detect |> expect |> toBe(true)
+      );
+      test("Rush", () =>
+        cwd |> Rush.detect |> expect |> toBe(false)
+      );
+      test("Yarn_V1", () =>
+        cwd |> Yarn_V1.detect |> expect |> toBe(false)
+      );
+      test("Yarn_V2", () =>
+        cwd |> Yarn_V2.detect |> expect |> toBe(false)
+      );
+    });
+    describe("Rush workspace", () => {
+      let dir = "rush";
+      let cwd = Node.Path.join2(fixturesDir, dir);
+      test("Pnpm", () =>
+        cwd |> Pnpm.detect |> expect |> toBe(false)
+      );
+      test("Rush", () =>
+        cwd |> Rush.detect |> expect |> toBe(true)
+      );
+      test("Yarn_V1", () =>
+        cwd |> Yarn_V1.detect |> expect |> toBe(false)
+      );
+      test("Yarn_V2", () =>
+        cwd |> Yarn_V2.detect |> expect |> toBe(false)
+      );
+    });
+    describe("Yarn_V1 workspace", () => {
+      let dir = "yarn";
+      let cwd = Node.Path.join2(fixturesDir, dir);
+      test("Pnpm", () =>
+        cwd |> Pnpm.detect |> expect |> toBe(false)
+      );
+      test("Rush", () =>
+        cwd |> Rush.detect |> expect |> toBe(false)
+      );
+      test("Yarn_V1", () =>
+        cwd |> Yarn_V1.detect |> expect |> toBe(true)
+      );
+      test("Yarn_V2", () =>
+        cwd |> Yarn_V2.detect |> expect |> toBe(false)
+      );
+    });
+    describe("Yarn_V2 workspace", () => {
+      let dir = "berry";
+      let cwd = Node.Path.join2(fixturesDir, dir);
+      test("Pnpm", () =>
+        cwd |> Pnpm.detect |> expect |> toBe(false)
+      );
+      test("Rush", () =>
+        cwd |> Rush.detect |> expect |> toBe(false)
+      );
+      test("Yarn_V1", () =>
+        cwd |> Yarn_V1.detect |> expect |> toBe(false)
+      );
+      test("Yarn_V2", () =>
+        cwd |> Yarn_V2.detect |> expect |> toBe(true)
+      );
+    });
+  });
 });
