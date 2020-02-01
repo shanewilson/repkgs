@@ -105,6 +105,8 @@ module Pnpm = {
   let findRoot = path => path->Common.findClosestWorktree(patterns);
 
   let packages = cwd => cwd->Common.packages(~patterns, ());
+
+  let detect = cwd => cwd->findRoot->Belt.Result.isOk;
 };
 
 module Rush = {
@@ -133,6 +135,8 @@ module Rush = {
   let findRoot = path => path->Common.findClosestWorktree(patterns);
 
   let packages = cwd => cwd->Common.packages(~patterns, ());
+
+  let detect = cwd => cwd->findRoot->Belt.Result.isOk;
 };
 
 module Yarn_V1 = {
@@ -153,24 +157,41 @@ module Yarn_V1 = {
   let findRoot = path => path->Common.findClosestWorktree(patterns);
 
   let packages = cwd => cwd->Common.packages(~patterns, ());
+
+  let detect_v1 = res => {
+    switch ([|res->Belt.Result.getExn, ".yarnrc.yml"|]->Utils.read) {
+    | _ => false
+    | exception _ => true
+    };
+  };
+
+  let detect = cwd => {
+    switch (cwd->findRoot) {
+    | res when res->Belt.Result.isOk => res->detect_v1
+    | _ => false
+    };
+  };
 };
 
 module Yarn_V2 = {
-  [@decco.decode]
-  type t = {
-    [@decco.default [||]]
-    workspaces: array(string),
-  };
+  type t = Yarn_V1.t;
 
-  let manifest = "package.json";
+  let manifest = Yarn_V1.manifest;
 
-  let read = Common.readJson;
+  let read = Yarn_V1.read;
 
-  let parse = json => json->Common.parse(t_decode);
+  let parse = Yarn_V1.parse;
 
-  let patterns = path => [|path, manifest|]->read->parse->(m => m.workspaces);
+  let patterns = Yarn_V1.patterns;
 
   let findRoot = path => path->Common.findHighestWorktree(patterns, ());
 
   let packages = cwd => cwd->Common.packages(~patterns, ~nested=true, ());
+
+  let detect = cwd => {
+    switch (cwd->findRoot) {
+    | res when res->Belt.Result.isOk => !res->Yarn_V1.detect_v1
+    | _ => false
+    };
+  };
 };
