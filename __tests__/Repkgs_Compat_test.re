@@ -24,10 +24,10 @@ let compareArrays = (arr1, arr2) =>
   |> expect
   |> toEqual(arr2 |> Belt.SortArray.String.stableSort);
 
-let comparePaths = (cwd, fn: string => array(Common.matched), arr2) =>
+let comparePaths = (cwd, fn: string => array(Common.workspace), arr2) =>
   cwd
   ->fn
-  ->Belt.Array.map(ws => Node.Path.relative(~from=cwd, ~to_=ws.absolute, ()))
+  ->Belt.Array.map(((to_, _)) => Node.Path.relative(~from=cwd, ~to_, ()))
   ->compareArrays(arr2);
 
 describe("Compat", () => {
@@ -254,5 +254,41 @@ describe("Compat", () => {
         cwd |> Yarn_V2.detect |> expect |> toBe(true)
       );
     });
+  });
+  describe("WorkspaceManager", () => {
+    describe("detectWorkspaceManager", () => {
+      test("Yarn_V1", () =>
+        fixturesDir
+        |> Node.Path.join2(_, "yarn")
+        |> detectWorkspaceManager
+        |> Belt.Result.getExn
+        |> expect
+        |> toEqual(Yarn_V1)
+      );
+      test("Yarn_V2", () =>
+        fixturesDir
+        |> Node.Path.join2(_, "berry")
+        |> detectWorkspaceManager
+        |> Belt.Result.getExn
+        |> expect
+        |> toEqual(Yarn_V2)
+      );
+      test("Pnpm", () =>
+        fixturesDir
+        |> Node.Path.join2(_, "pnpm")
+        |> detectWorkspaceManager
+        |> Belt.Result.getExn
+        |> expect
+        |> toEqual(Pnpm)
+      );
+      test("Rush", () =>
+        fixturesDir
+        |> Node.Path.join2(_, "rush")
+        |> detectWorkspaceManager
+        |> Belt.Result.getExn
+        |> expect
+        |> toEqual(Rush)
+      );
+    })
   });
 });

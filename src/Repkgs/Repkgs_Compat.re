@@ -1,14 +1,14 @@
 module Bs = Repkgs_Bs;
 module Utils = Repkgs_Utils;
 
-// find root
-
 module Common = {
   [@genType]
-  type matched = {
-    absolute: string,
-    worktree: bool,
-  };
+  [@genType]
+  type workspaceType =
+    | WorkTree
+    | Package;
+  [@genType]
+  type workspace = (string, workspaceType);
 
   let readJson = paths =>
     switch (paths->Utils.read) {
@@ -45,8 +45,7 @@ module Common = {
 
   let rec findHighestWorktree = (path, patterns, ~closest=None, ~depth=3, ()) => {
     let cwd = Node.Path.resolve(path, "");
-    Js.log(cwd);
-    Js.log(depth);
+
     let ws = cwd->patterns;
 
     switch (cwd) {
@@ -78,14 +77,14 @@ module Common = {
 
     nested
       ? switch (ws) {
-        | [||] => [|{absolute: cwd, worktree: false}|]
+        | [||] => [|(cwd, Package)|]
         | _ =>
           ws
           ->Belt.Array.map(w => packages(w, ~patterns, ~nested, ()))
           ->Belt.Array.concatMany
-          ->Belt.Array.concat([|{absolute: cwd, worktree: true}|])
+          ->Belt.Array.concat([|(cwd, WorkTree)|])
         }
-      : Belt.Array.map(ws, w => {absolute: w, worktree: false});
+      : Belt.Array.map(ws, w => (w, Package));
   };
 };
 
@@ -176,14 +175,6 @@ module Yarn_V1 = {
 };
 
 module Yarn_V2 = {
-  type t = Yarn_V1.t;
-
-  let manifest = Yarn_V1.manifest;
-
-  let read = Yarn_V1.read;
-
-  let parse = Yarn_V1.parse;
-
   let patterns = Yarn_V1.patterns;
 
   let findRoot = path => path->Common.findHighestWorktree(patterns, ());
@@ -197,3 +188,37 @@ module Yarn_V2 = {
     };
   };
 };
+
+[@genType]
+type t =
+  | Pnpm
+  | Rush
+  | Yarn_V1
+  | Yarn_V2;
+
+[@genType]
+let detectWorkspaceManager = cwd =>
+  cwd->Yarn_V1.detect
+    ? Belt.Result.Ok(Yarn_V1)
+    : cwd->Yarn_V2.detect
+        ? Belt.Result.Ok(Yarn_V2)
+        : cwd->Pnpm.detect
+            ? Belt.Result.Ok(Pnpm)
+            : cwd->Rush.detect
+                ? Belt.Result.Ok(Rush) : Belt.Result.Error("No Workspace");
+
+let findRootDirectory = (wsmgr, cwd) =>
+  switch (wsmgr) {
+  | Yarn_V1 => cwd |> Yarn_V1.findRoot
+  | Yarn_V2 => cwd |> Yarn_V2.findRoot
+  | Pnpm => cwd |> Pnpm.findRoot
+  | Rush => cwd |> Rush.findRoot
+  };
+
+let findWorkspaceDirectories = (wsmgr, cwd) =>
+  switch (wsmgr) {
+  | Yarn_V1 => cwd |> Yarn_V1.packages
+  | Yarn_V2 => cwd |> Yarn_V2.packages
+  | Pnpm => cwd |> Pnpm.packages
+  | Rush => cwd |> Rush.packages
+  };
