@@ -176,6 +176,11 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@elliottcable/bs-cmdliner@^10.2.2":
+  version "10.2.2"
+  resolved "https://registry.yarnpkg.com/@elliottcable/bs-cmdliner/-/bs-cmdliner-10.2.2.tgz#88d8bdfe500836eda0d42b7a36faa8289990b63d"
+  integrity sha512-wcOOs1paCmvpTWbEhheNGlI4TqpDmNOrIyD4cZmw8+HCfkxpHW6OzNNg7cpIimK1HBEgIDA7dR9xizw8T1T6oQ==
+
 "@glennsl/bs-jest@^0.4.9":
   version "0.4.9"
   resolved "https://registry.yarnpkg.com/@glennsl/bs-jest/-/bs-jest-0.4.9.tgz#a23af2668dda05947ce9c043fd5a7b295e91cef7"
@@ -1042,6 +1047,11 @@ escodegen@^1.9.1:
     optionator "^0.8.1"
   optionalDependencies:
     source-map "~0.6.1"
+
+esm@^3.2.25:
+  version "3.2.25"
+  resolved "https://registry.yarnpkg.com/esm/-/esm-3.2.25.tgz#342c18c29d56157688ba5ce31f8431fbb795cc10"
+  integrity sha512-U1suiZ2oDVWv4zPO56S0NcR5QriEahGtdN2OR6FiOG4WJvcjBVFB0qI4+eKoWFH483PKGuLuu6V8Z4T5g63UVA==
 
 esprima@^4.0.0, esprima@^4.0.1:
   version "4.0.1"

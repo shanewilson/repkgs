@@ -4,7 +4,7 @@
   "sources": [
     {
       "dir": "src",
-      "subdirs": ["Repkgs"],
+      "subdirs": ["Repkgs", "RepkgsCli"],
       "public": [
         "Repkgs"
       ]
@@ -28,7 +28,8 @@
   "suffix": ".bs.js",
   "bs-dependencies": [
     "wonka",
-    "decco"
+    "decco",
+    "@elliottcable/bs-cmdliner"
   ],
   "bs-dev-dependencies": [
     "@glennsl/bs-jest"

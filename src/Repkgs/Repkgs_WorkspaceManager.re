@@ -41,7 +41,6 @@ let findWorkspaceDirectories = Compat.findWorkspaceDirectories;
 [@genType]
 let findWorkspaces = ws =>
   ws->Belt.Array.map(((absolute, type_)) => {
-    Js.log(absolute);
     let packageJson = PackageJson.read(absolute);
     {name: packageJson.name, absolute, type_, packageJson};
   })
