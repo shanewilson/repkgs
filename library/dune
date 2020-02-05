@@ -1,0 +1,14 @@
+(library (name RepkgsCliLibrary) (public_name repkgs--cli.library)
+    (modules (:standard \ RepkgsCliLibraryPesyModules))
+    (libraries repkgs--cli.library.pesy-modules)
+    (flags -open Base -open RepkgsCliLibraryPesyModules))
+(library (public_name repkgs--cli.library.pesy-modules)
+    (name RepkgsCliLibraryPesyModules) (modules RepkgsCliLibraryPesyModules)
+    (libraries base console.lib pastel.lib))
+(rule
+    (with-stdout-to RepkgsCliLibraryPesyModules.re
+        (run echo
+             "module Base = Base;\
+            \nmodule Console = Console;\
+            \nmodule Pastel = Pastel;")))
+(include_subdirs unqualified)

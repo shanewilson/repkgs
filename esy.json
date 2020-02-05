@@ -1,0 +1,102 @@
+{
+  "name": "@repkgs/cli",
+  "version": "0.1.0",
+  "description": "Starter Reason Esy Pesy Project",
+  "esy": {
+    "build": "dune build -p repkgs--cli",
+    "buildDev": "refmterr dune build -p repkgs--cli",
+    "NOTE": "Optional release Section. Customizes result of `esy release`",
+    "release": {
+      "releasedBinaries": [
+        "RePkgsCli.exe"
+      ]
+    },
+    "buildEnv": {
+      "ODOC_SYNTAX": "re"
+    }
+  },
+  "buildDirs": {
+    "test": {
+      "imports": [
+        "Library = require('@repkgs/cli/library')",
+        "Base = require('base')",
+        "Rely = require('rely/lib')",
+        "Lwt_unix = require('lwt/unix')"
+      ],
+      "flags": [
+        "-open",
+        "Base",
+        "-linkall",
+        "-g",
+        "-w",
+        "-9"
+      ],
+      "includeSubdirs": "unqualified"
+    },
+    "testExe": {
+      "imports": [
+        "Test = require('@repkgs/cli/test')"
+      ],
+      "bin": {
+        "RunRePkgsTests.exe": "RunRePkgsTests.re"
+      }
+    },
+    "library": {
+      "imports": [
+        "Base = require('base')",
+        "Console = require('console/lib')",
+        "Pastel = require('pastel/lib')"
+      ],
+      "flags": [
+        "-open",
+        "Base"
+      ],
+      "includeSubdirs": "unqualified"
+    },
+    "bin": {
+      "imports": [
+        "Library = require('@repkgs/cli/library')",
+        "Base = require('base')",
+        "Console = require('console/lib')",
+        "Pastel = require('pastel/lib')",
+        "Cmdliner = require('cmdliner')",
+        "Lwt = require('@opam/lwt')",
+        "Lwt_unix = require('lwt/unix')"
+        
+      ],
+      "flags": [
+        "-open",
+        "Base"
+      ],
+      "bin": {
+        "RePkgs.exe": "RePkgsCli.re"
+      },
+      "includeSubdirs": "unqualified"
+    }
+  },
+  "scripts": {
+    "ppesy": "bash -c 'env PESY_MODE=update pesy'",
+    "start": "esy x RePkgs.exe",
+    "test": "esy x RunRePkgsTests.exe",
+    "doc": "esy dune build @doc",
+    "doc-path": "esy echo #{self.target_dir}/default/_doc/_html/index.html"
+  },
+  "dependencies": {
+    "@esy-ocaml/reason": "*",
+    "@opam/base": "v0.13.0",
+    "@opam/cmdliner": "1.0.4",
+    "@opam/dune": "*",
+    "@opam/lwt": "5.1.1",
+    "@reason-native/console": "*",
+    "@reason-native/pastel": "*",
+    "@reason-native/rely": "*",
+    "ocaml": "~4.8.1000"
+  },
+  "devDependencies": {
+    "refmterr": "*",
+    "@opam/merlin": "*",
+    "ocaml": "~4.8.1000",
+    "@opam/odoc": "*",
+    "@pesy/esy-pesy": "0.1.0-alpha.5"
+  }
+}

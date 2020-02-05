@@ -1,0 +1,1 @@
+let all = [CmdHello.cmd];
