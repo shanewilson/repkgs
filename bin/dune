@@ -1,0 +1,19 @@
+(executable (name RePkgsCli)
+    (modules (:standard \ RepkgsCliBinPesyModules))
+    (public_name RePkgs.exe) (libraries repkgs--cli.bin.pesy-modules)
+    (flags -open Base -open RepkgsCliBinPesyModules))
+(library (public_name repkgs--cli.bin.pesy-modules)
+    (name RepkgsCliBinPesyModules) (modules RepkgsCliBinPesyModules)
+    (libraries base cmdliner console.lib lwt lwt.unix pastel.lib
+        repkgs--cli.library))
+(rule
+    (with-stdout-to RepkgsCliBinPesyModules.re
+        (run echo
+             "module Library = RepkgsCliLibrary;\
+            \nmodule Base = Base;\
+            \nmodule Console = Console;\
+            \nmodule Pastel = Pastel;\
+            \nmodule Cmdliner = Cmdliner;\
+            \nmodule Lwt = Lwt;\
+            \nmodule Lwt_unix = Lwt_unix;")))
+(include_subdirs unqualified)

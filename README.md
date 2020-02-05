@@ -17,14 +17,16 @@
 
 ## Getting Started
 
-### Development
+### Bucklescript
+
+#### Development
 
 ```
 ❯ yarn install
 ❯ yarn clean && yarn build -w
 ```
 
-### CLI
+#### CLI
 
 ```
 ❯ yarn repkgs list --cwd "__fixtures__/berry"
@@ -42,8 +44,29 @@ cwd = __fixtures__/berry
 ✨  Done in 0.65s.
 ```
 
-### Tests
+#### Tests
 
 ```
 ❯ yarn test --watch
+```
+
+### Native
+
+#### Development
+
+```
+❯ esy install
+❯ esy
+```
+
+#### CLI
+
+```
+❯ esy start hello Tom
+```
+
+#### Tests
+
+```
+❯ esy test
 ```
