@@ -1,14 +1,13 @@
 open Cmdliner;
 
 let defaultCmd = {
-  let doc = "";
+  let doc = "workspace manager";
 
   (
     Term.(ret(const(_ => `Help((`Pager, None))) $ const())),
     Term.info(
-      "spin-cli",
+      "repkgs",
       ~doc,
-      ~envs=Man.envs,
       ~version=Man.version,
       ~exits=Man.exits,
       ~man=Man.man,
@@ -26,4 +25,4 @@ let argv =
        }
      );
 
-let _ = Term.exit @@ Term.eval_choice(defaultCmd, Commands.all, ~argv);
+let _ = Term.eval_choice(defaultCmd, Commands.all, ~argv) |> Term.exit;

@@ -1,12 +1,11 @@
 open Cmdliner;
 
-let run = (~nameToGreet) => {
-  let greeting = Library.Utils.greet(nameToGreet);
-  Console.log(Pastel.(
-    <Pastel>
-      <Pastel color=Green> greeting </Pastel>
-    </Pastel>));
-  Lwt.return();
+let run = (~nameToGreet, ()) => {
+  let greetings = Library.Utils.greet(nameToGreet);  
+
+  Console.log(<Pastel> <Pastel color=Green> greetings </Pastel> </Pastel>);
+
+  Lwt.return_ok();
 };
 
 let cmd = {
@@ -19,14 +18,13 @@ let cmd = {
     );
   };
 
-  let runCommand = nameToGreet => Lwt_main.run(run(~nameToGreet));
+  let runCommand = nameToGreet => run(~nameToGreet) |> Utils.runCmd;
 
   (
     Term.(const(runCommand) $ nameToGreet),
     Term.info(
       "hello",
       ~doc,
-      ~envs=Man.envs,
       ~version=Man.version,
       ~exits=Man.exits,
       ~man=Man.man,

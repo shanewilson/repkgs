@@ -8,35 +8,18 @@ let man = [
   `P("Use `$(mname) $(i,COMMAND) --help' for help on a single command."),
   `Noblank,
   `S(Manpage.s_bugs),
-  `P("File bug reports at https://github.com/Me/spin-cli"),
+  `P("File bug reports at https://github.com/shanewilson/repkgs"),
 ];
 
 let version = Package.version;
 
-let envs =
-  Library.Config.all
-  |> Library.Errors.handle_errors
-  |> List.map(_, envVar =>
-       Library.Config.(
-         Term.env_info(
-           ~doc=
-             Printf.sprintf(
-               "%s\ndefaults to \"%s\"",
-               envVar.doc,
-               envVar.default,
-             ),
-           envVar.name,
-         )
-       )
-     );
-
 let sdocs = Manpage.s_common_options;
 
-let exits =
+let exits = Library.Errors.(
   List.concat([
-    Library.Errors.all()
+    all()
     |> List.map(_, envVar =>
-         Library.Errors.(Term.exit_info(envVar.exit_code, ~doc=envVar.doc))
+         Term.exit_info(envVar.exit_code, ~doc=envVar.doc)
        ),
     Term.default_exits,
-  ]);
+  ]));
