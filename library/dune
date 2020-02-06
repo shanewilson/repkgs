@@ -1,15 +1,16 @@
 (library (name RepkgsCliLibrary) (public_name repkgs--cli.library)
     (modules (:standard \ RepkgsCliLibraryPesyModules))
     (libraries repkgs--cli.library.pesy-modules)
-    (flags -open Base -open RepkgsCliLibraryPesyModules)
+    (flags -open Core_kernel -open RepkgsCliLibraryPesyModules)
     (preprocess (pps lwt_ppx)))
 (library (public_name repkgs--cli.library.pesy-modules)
     (name RepkgsCliLibraryPesyModules) (modules RepkgsCliLibraryPesyModules)
-    (libraries base console.lib lwt pastel.lib) (preprocess (pps lwt_ppx)))
+    (libraries console.lib core_kernel lwt pastel.lib)
+    (preprocess (pps lwt_ppx)))
 (rule
     (with-stdout-to RepkgsCliLibraryPesyModules.re
         (run echo
-             "module Base = Base;\
+             "module Core_kernel = Core_kernel;\
             \nmodule Console = Console;\
             \nmodule Pastel = Pastel;\
             \nmodule Lwt = Lwt;")))

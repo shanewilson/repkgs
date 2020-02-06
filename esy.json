@@ -12,10 +12,11 @@
   "buildDirs": {
     "test": {
       "imports": [
-        "Library = require('@repkgs/cli/library')", "Base = require('base')",
-        "Rely = require('rely/lib')", "Lwt_unix = require('lwt/unix')"
+        "Library = require('@repkgs/cli/library')",
+        "Core_kernel = require('core_kernel')", "Rely = require('rely/lib')",
+        "Lwt_unix = require('lwt/unix')"
       ],
-      "flags": [ "-open", "Base", "-linkall", "-g", "-w", "-9" ],
+      "flags": [ "-open", "Core_kernel", "-linkall", "-g", "-w", "-9" ],
       "includeSubdirs": "unqualified"
     },
     "testExe": {
@@ -24,35 +25,33 @@
     },
     "library": {
       "imports": [
-        "Base = require('base')", "Console = require('console/lib')",
-        "Pastel = require('pastel/lib')",
+        "Core_kernel = require('core_kernel')",
+        "Console = require('console/lib')", "Pastel = require('pastel/lib')",
         "Lwt = require('@opam/lwt')"
       ],
-      "flags": [ "-open", "Base" ],
-      "preprocess": [
-        "pps",
-        "lwt_ppx"
-      ],
+      "flags": [ "-open", "Core_kernel" ],
+      "preprocess": [ "pps", "lwt_ppx" ],
       "includeSubdirs": "unqualified"
     },
     "bin": {
       "imports": [
-        "Library = require('@repkgs/cli/library')", "Base = require('base')",
+        "Library = require('@repkgs/cli/library')",
+        "Core_kernel = require('core_kernel')",
         "Console = require('console/lib')", "Pastel = require('pastel/lib')",
         "Cmdliner = require('cmdliner')", "Lwt = require('@opam/lwt')",
-        "Lwt_unix = require('lwt/unix')"
+        "Lwt_unix = require('lwt/unix')", "Logs = require('logs')",
+        "Logs_cli = require('logs/cli')", "Logs_fmt = require('logs/fmt')",
+        "Logs_lwt = require('logs/lwt')", "Fmt_tty = require('fmt/tty')",
+        "Fmt_cli = require('fmt/cli')"
       ],
-      "flags": [ "-open", "Base" ],
-      "preprocess": [
-        "pps",
-        "lwt_ppx"
-      ],
+      "flags": [ "-open", "Core_kernel" ],
+      "preprocess": [ "pps", "lwt_ppx" ],
       "bin": { "RePkgs.exe": "RePkgsCli.re" },
       "includeSubdirs": "unqualified"
     }
   },
   "scripts": {
-    "ppesy": "bash -c 'env PESY_MODE=update pesy'",
+    "pesy": "bash -c 'env PESY_MODE=update pesy'",
     "start": "esy x RePkgs.exe",
     "test": "esy x RunRePkgsTests.exe",
     "doc": "esy dune build @doc",
@@ -60,9 +59,11 @@
   },
   "dependencies": {
     "@esy-ocaml/reason": "*",
-    "@opam/base": "v0.13.0",
     "@opam/cmdliner": "1.0.4",
+    "@opam/core": "v0.13.0",
     "@opam/dune": "*",
+    "@opam/fmt": "0.8.8",
+    "@opam/logs": "0.7.0",
     "@opam/lwt": "5.1.1",
     "@opam/lwt_ppx": "2.0.0",
     "@reason-native/console": "*",

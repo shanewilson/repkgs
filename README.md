@@ -62,7 +62,12 @@ cwd = __fixtures__/berry
 #### CLI
 
 ```
-❯ esy start hello Tom
+❯ esy start hello Tom -vv
+Hello Tom!
+RePkgs.exe: [INFO] Hello Tom!
+RePkgs.exe: [WARNING] Hello Tom!
+RePkgs.exe: [ERROR] Hello Tom!
+RePkgs.exe: [DEBUG] Hello Tom!
 ```
 
 #### Tests

@@ -2,8 +2,11 @@ open Cmdliner;
 
 let run = (~nameToGreet, ()) => {
   let greetings = Library.Utils.greet(nameToGreet);  
-
-  Console.log(<Pastel> <Pastel color=Green> greetings </Pastel> </Pastel>);
+  let%lwt _ = Logs_lwt.app(m => m("%s", greetings));
+  let%lwt _ = Logs_lwt.info(m => m("%s", greetings));
+  let%lwt _ = Logs_lwt.warn(m => m("%s", greetings));
+  let%lwt _ = Logs_lwt.err(m => m("%s", greetings));
+  let%lwt _ = Logs_lwt.debug(m => m("%s", greetings));
 
   Lwt.return_ok();
 };
@@ -18,10 +21,10 @@ let cmd = {
     );
   };
 
-  let runCommand = nameToGreet => run(~nameToGreet) |> Utils.runCmd;
+  let runCommand = (_, nameToGreet) => run(~nameToGreet) |> Utils.runCmd;
 
   (
-    Term.(const(runCommand) $ nameToGreet),
+    Term.(const(runCommand) $ Logger.args $ nameToGreet),
     Term.info(
       "hello",
       ~doc,
