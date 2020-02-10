@@ -13,10 +13,9 @@
     "test": {
       "imports": [
         "Library = require('@repkgs/cli/library')",
-        "Core_kernel = require('core_kernel')", "Rely = require('rely/lib')",
-        "Lwt_unix = require('lwt/unix')"
+        "Rely = require('rely/lib')", "Lwt_unix = require('lwt/unix')"
       ],
-      "flags": [ "-open", "Core_kernel", "-linkall", "-g", "-w", "-9" ],
+      "flags": [ "-linkall", "-g", "-w", "-9" ],
       "includeSubdirs": "unqualified"
     },
     "testExe": {
@@ -25,26 +24,24 @@
     },
     "library": {
       "imports": [
-        "Core_kernel = require('core_kernel')",
         "Console = require('console/lib')", "Pastel = require('pastel/lib')",
-        "Lwt = require('@opam/lwt')"
+        "Logs = require('logs')", "Fpath = require('fpath')",
+        "Dune_glob = require('@opam/dune-glob')",
+        "Yojson = require('@opam/yojson')"
       ],
-      "flags": [ "-open", "Core_kernel" ],
-      "preprocess": [ "pps", "lwt_ppx" ],
+      "preprocess": [ "pps", "lwt_ppx", "ppx_deriving_yojson" ],
       "includeSubdirs": "unqualified"
     },
     "bin": {
       "imports": [
         "Library = require('@repkgs/cli/library')",
-        "Core_kernel = require('core_kernel')",
         "Console = require('console/lib')", "Pastel = require('pastel/lib')",
         "Cmdliner = require('cmdliner')", "Lwt = require('@opam/lwt')",
         "Lwt_unix = require('lwt/unix')", "Logs = require('logs')",
         "Logs_cli = require('logs/cli')", "Logs_fmt = require('logs/fmt')",
         "Logs_lwt = require('logs/lwt')", "Fmt_tty = require('fmt/tty')",
-        "Fmt_cli = require('fmt/cli')"
+        "Fmt_cli = require('fmt/cli')", "Fpath = require('fpath')"
       ],
-      "flags": [ "-open", "Core_kernel" ],
       "preprocess": [ "pps", "lwt_ppx" ],
       "bin": { "RePkgs.exe": "RePkgsCli.re" },
       "includeSubdirs": "unqualified"
@@ -60,12 +57,16 @@
   "dependencies": {
     "@esy-ocaml/reason": "*",
     "@opam/cmdliner": "1.0.4",
-    "@opam/core": "v0.13.0",
-    "@opam/dune": "*",
+    "@opam/dune": "2.1.3",
+    "@opam/dune-glob": "2.1.3",
+    
     "@opam/fmt": "0.8.8",
+    "@opam/fpath": "0.7.2",
     "@opam/logs": "0.7.0",
     "@opam/lwt": "5.1.1",
     "@opam/lwt_ppx": "2.0.0",
+    "@opam/ppx_deriving_yojson": "3.5.1",
+    "@opam/yojson": "1.7.0",
     "@reason-native/console": "*",
     "@reason-native/pastel": "*",
     "@reason-native/rely": "*",

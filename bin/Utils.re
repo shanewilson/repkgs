@@ -5,7 +5,7 @@ let runCmd = fn => {
   |> Lwt_main.run
   |> (
     fun
-    | Error(err_code) => Caml.exit(err_code)
+    | Error(err_code) => exit(err_code)
     | Ok () => ()
   );
 };

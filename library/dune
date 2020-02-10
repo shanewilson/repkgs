@@ -1,17 +1,19 @@
 (library (name RepkgsCliLibrary) (public_name repkgs--cli.library)
     (modules (:standard \ RepkgsCliLibraryPesyModules))
     (libraries repkgs--cli.library.pesy-modules)
-    (flags -open Core_kernel -open RepkgsCliLibraryPesyModules)
-    (preprocess (pps lwt_ppx)))
+    (flags -open RepkgsCliLibraryPesyModules)
+    (preprocess (pps lwt_ppx ppx_deriving_yojson)))
 (library (public_name repkgs--cli.library.pesy-modules)
     (name RepkgsCliLibraryPesyModules) (modules RepkgsCliLibraryPesyModules)
-    (libraries console.lib core_kernel lwt pastel.lib)
-    (preprocess (pps lwt_ppx)))
+    (libraries console.lib dune-glob fpath logs pastel.lib yojson)
+    (preprocess (pps lwt_ppx ppx_deriving_yojson)))
 (rule
     (with-stdout-to RepkgsCliLibraryPesyModules.re
         (run echo
-             "module Core_kernel = Core_kernel;\
-            \nmodule Console = Console;\
+             "module Console = Console;\
             \nmodule Pastel = Pastel;\
-            \nmodule Lwt = Lwt;")))
+            \nmodule Logs = Logs;\
+            \nmodule Fpath = Fpath;\
+            \nmodule Dune_glob = Dune_glob;\
+            \nmodule Yojson = Yojson;")))
 (include_subdirs unqualified)

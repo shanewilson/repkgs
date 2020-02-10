@@ -17,6 +17,6 @@ let defaultCmd = {
 };
 
 let _ = switch (Term.eval_choice(defaultCmd, Commands.all)) {
-  | `Error(err_code) => Caml.exit(1)
-  | _ => Caml.exit(Logs.err_count() > 0 ? 1 : 0)
+  | `Error(err_code) => exit(1)
+  | _ => exit(Logs.err_count() > 0 ? 1 : 0)
   };

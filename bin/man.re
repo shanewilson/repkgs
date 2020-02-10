@@ -18,7 +18,7 @@ let sdocs = Manpage.s_common_options;
 let exits = Library.Errors.(
   List.concat([
     all()
-    |> List.map(_, envVar =>
+    |> List.map(envVar =>
          Term.exit_info(envVar.exit_code, ~doc=envVar.doc)
        ),
     Term.default_exits,

@@ -1,1 +1,1 @@
-let all = [CmdHello.cmd];
+let all = [CmdHello.cmd, CmdList.cmd];
