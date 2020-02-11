@@ -13,6 +13,6 @@ describe("Integration Test `--version`", ({test, _}) => {
   test("Get version", ({expect}) => {
     let version = TestUtils.run([|"--version"|]);
     let generated = expect.string(version);
-    generated.toMatch("^\\d+.\\d+.\\d+$");
+    generated.toMatch("^\\d+.\\d+.\\d+");
   })
 });

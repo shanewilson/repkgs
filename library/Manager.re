@@ -40,10 +40,7 @@ module Workspace = {
 };
 
 let find_workspaces = cwd => {
-  let cwd =
-    Fpath.v(cwd)
-    |> Fpath.append(Fpath.v(Sys.getcwd()))
-    |> Fs.normalize_dir_path;
+  let cwd = cwd |> Fs.normalize_cwd;
 
   let (wsmgr, root) =
     cwd

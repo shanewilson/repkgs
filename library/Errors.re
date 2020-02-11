@@ -1,5 +1,8 @@
 exception Missing_env_var(string);
 exception Json_parse_error(Fpath.t, string);
+exception Fs_dne(Fpath.t);
+exception Fs_cwd(string);
+exception Fs_error(Fpath.t, string);
 exception No_workspace_found;
 
 type error = {
@@ -18,6 +21,30 @@ let handleErrors = fn =>
       </Pastel>,
     );
     exit(201);
+  | Fs_cwd(msg) =>
+    let%lwt _ =
+      Logs_lwt.err(m =>
+        m("I could not determine the current working directory")
+      );
+    let%lwt _ = Logs_lwt.err(m => m("Here is the error:"));
+    let%lwt _ = Logs_lwt.err(m => m("%s", msg));
+    exit(1);
+  | Fs_dne(path) =>
+    let%lwt _ =
+      Logs_lwt.err(m =>
+        m("Looks like the following path does not exist:")
+      );
+    let%lwt _ = Logs_lwt.err(m => m("%s", path |> Fpath.to_string));
+    exit(1);
+  | Fs_error(path, msg) =>
+    let%lwt _ =
+      Logs_lwt.err(m =>
+        m("Looks like there was a problem accessing the following path:")
+      );
+    let%lwt _ = Logs_lwt.err(m => m("%s", path |> Fpath.to_string));
+    let%lwt _ = Logs_lwt.err(m => m("Here is the error:"));
+    let%lwt _ = Logs_lwt.err(m => m("%s", msg));
+    exit(1);
   | Json_parse_error(path, msg) =>
     let%lwt _ =
       Logs_lwt.err(m =>
@@ -29,7 +56,7 @@ let handleErrors = fn =>
   | No_workspace_found =>
     let%lwt _ =
       Logs_lwt.err(m =>
-        m("We were not able to find a valid workspace.")
+        m("I was not able to find a valid workspace.")
       );
     
     exit(1);

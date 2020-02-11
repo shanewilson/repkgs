@@ -1,11 +1,11 @@
 (library (name RepkgsCliLibrary) (public_name repkgs--cli.library)
     (modules (:standard \ RepkgsCliLibraryPesyModules))
     (libraries repkgs--cli.library.pesy-modules)
-    (flags -open RepkgsCliLibraryPesyModules)
+    (flags -open Bos_setup -open RepkgsCliLibraryPesyModules)
     (preprocess (pps lwt_ppx ppx_deriving_yojson)))
 (library (public_name repkgs--cli.library.pesy-modules)
     (name RepkgsCliLibraryPesyModules) (modules RepkgsCliLibraryPesyModules)
-    (libraries console.lib dune-glob fpath logs pastel.lib yojson)
+    (libraries bos.setup console.lib dune-glob fpath logs pastel.lib yojson)
     (preprocess (pps lwt_ppx ppx_deriving_yojson)))
 (rule
     (with-stdout-to RepkgsCliLibraryPesyModules.re
@@ -15,5 +15,6 @@
             \nmodule Logs = Logs;\
             \nmodule Fpath = Fpath;\
             \nmodule Dune_glob = Dune_glob;\
-            \nmodule Yojson = Yojson;")))
+            \nmodule Yojson = Yojson;\
+            \nmodule Bos_setup = Bos_setup;")))
 (include_subdirs unqualified)

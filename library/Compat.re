@@ -1,20 +1,38 @@
 module Workspace = {
   type t =
-    | Root(Fpath.t)
     | Package(Fpath.t)
-    | WorkTree(Fpath.t);
+    | WorkTree(Fpath.t, list(Fpath.t))
+    | Root(Fpath.t, list(Fpath.t));
 
   let to_path =
     fun
-    | Root(x) => x
+    | Root(x, _) => x
     | Package(x) => x
-    | WorkTree(x) => x;
+    | WorkTree(x, _) => x;
+
+  let path_to_manifest = (path, manifest_file) => manifest_file |> Fpath.append(path |> Fs.normalize_dir_path);
 
   let normalize_patterns = (cwd, patterns) =>
     patterns
     |> List.map(glob =>
          Fpath.add_seg(Fpath.append(cwd, Fpath.v(glob)), "package.json")
        );
+
+  let check_workspace_type =
+      (path, ~path_to_manifest, ~read_parse_manifest, ~get_workspace_patterns) =>
+    switch (path |> path_to_manifest |> Fs.exists) {
+    | Ok(File(p)) =>
+      p
+      |> read_parse_manifest
+      |> get_workspace_patterns
+      |> (
+        fun
+        | Some(patterns) =>
+          Ok(WorkTree(path, patterns |> normalize_patterns(path)))
+        | None => Ok(Package(path))
+      )
+    | _ => Ok(Package(path))
+    };
 
   let filter_ls_dir = (patterns, dirs) =>
     dirs
@@ -28,123 +46,74 @@ module Workspace = {
             )
        );
 
-  let rec get_dirs =
-          (
-            cwd,
-            manifest,
-            ~nested=false,
-            ~get_workspace_patterns,
-            ~read_parse_manifest,
-            ~is_worktree,
-            (),
-          ) => {
-    let patterns =
-      manifest |> get_workspace_patterns |> normalize_patterns(cwd);
-
+  let rec get_dirs = (cwd, patterns, ~nested=false, ~check_workspace_type, ()) => {
     let dirs = cwd |> Fs.ls_dir |> filter_ls_dir(patterns);
 
     dirs
     |> List.map(
-         find_matching_dirs(
-           _,
-           ~nested=true,
-           ~get_workspace_patterns,
-           ~read_parse_manifest,
-           ~is_worktree,
-           (),
-         ),
+         find_matching_dirs(_, ~nested=true, ~check_workspace_type, ()),
        )
     |> List.flatten
-    |> List.cons(nested ? WorkTree(cwd) : Root(cwd));
+    |> List.cons(nested ? WorkTree(cwd, patterns) : Root(cwd, patterns));
   }
-  and find_matching_dirs =
-      (
-        cwd,
-        ~nested=false,
-        ~get_workspace_patterns,
-        ~read_parse_manifest,
-        ~is_worktree,
-        (),
-      ) => {
+  and find_matching_dirs = (cwd, ~nested=false, ~check_workspace_type, ()) => {
     let cwd = cwd |> Fs.normalize_dir_path;
 
-    let manifest = cwd |> read_parse_manifest;
-
-    is_worktree(manifest)
-      ? get_dirs(
-          cwd,
-          manifest,
-          ~nested,
-          ~get_workspace_patterns,
-          ~read_parse_manifest,
-          ~is_worktree,
-          (),
-        )
-      : [Package(cwd)];
+    cwd
+    |> check_workspace_type
+    |> (
+      fun
+      | Ok(WorkTree(path, patterns)) =>
+        get_dirs(path, patterns, ~nested, ~check_workspace_type, ())
+      | _ => [Package(cwd)]
+    );
   };
 
   let rec find_root_dir =
-          (
-            path,
-            ~read_parse_manifest,
-            ~is_worktree,
-            ~closest=None,
-            ~depth=3,
-            (),
-          ) => {
-
-    let stop = fun
-        | Some(dir) => {
+          (path, ~check_workspace_type, ~closest=None, ~depth=3, ()) => {
+    let stop =
+      fun
+      | Some(dir) => {
           Logs.debug(m =>
             m("Found root directory of workspace: %s", dir |> Fpath.to_string)
           );
           dir;
         }
-        | None => raise(Errors.No_workspace_found);
-        
+      | None => raise(Errors.No_workspace_found);
+
     let hit_max_depth = depth <= 0;
-    
+
     let hit_fs_root = path |> Fpath.normalize |> Fpath.is_root;
-    
+
     Logs.debug(m =>
       m("Looking for manifest in directory: %s", path |> Fpath.to_string)
     );
 
-    switch((hit_max_depth, hit_fs_root)) {
-      | (true, _) => {
-        Logs.debug(m => m("Stopping because we hit max depth without finding a worktree."));
-        stop(closest)
-      }
-      | (_, true) => {
-        Logs.debug(m => m("Stopping because we hit the FS root."));
-        stop(closest)
-      }
-      | _ => {
-        let dir_worktree =
-          try(path |> read_parse_manifest |> is_worktree) {
-          | _ => false
-          };
+    switch (hit_max_depth, hit_fs_root) {
+    | (true, _) =>
+      Logs.debug(m =>
+        m("Stopping because we hit max depth without finding a worktree.")
+      );
+      stop(closest);
+    | (_, true) =>
+      Logs.debug(m => m("Stopping because we hit the FS root."));
+      stop(closest);
+    | _ =>
+      let frd = find_root_dir(path |> Fpath.parent, ~check_workspace_type);
 
-        let frd =
-          find_root_dir(
-            path |> Fpath.parent,
-            ~read_parse_manifest,
-            ~is_worktree,
-          );
-
-        dir_worktree
-          ? {
+      path
+      |> check_workspace_type
+      |> (
+        fun
+        | Ok(WorkTree(p, _)) => {
             Logs.debug(m =>
-              m("Detected worktree at: %s", path |> Fpath.to_string)
+              m("Detected worktree at: %s", p |> Fpath.to_string)
             );
-            frd(~closest=Some(path), ~depth=3, ());
+            frd(~closest=Some(p), ~depth=3, ());
           }
-          : frd(~closest, ~depth=depth - 1, ());
-      };
-
-    }
-
-   
+        | _ => frd(~closest, ~depth=depth - 1, ())
+      );
+    };
   };
 };
 
@@ -155,16 +124,15 @@ module Yarn = {
     workspaces: option(list(string)),
   };
 
-  let manifest_file = "package.json";
+  let manifest_file = Fpath.v("package.json");
 
-  let path_to_manifest = path => manifest_file |> Fpath.add_seg(path);
+  let path_to_manifest = path => Workspace.path_to_manifest(path, manifest_file)
 
   let read_manifest = path => path |> Fs.read_json;
 
   let parse_manifest = manifest => manifest |> of_yojson;
 
-  let read_parse_manifest = path => {
-    let path = path |> path_to_manifest;
+  let read_parse_manifest = path =>
     path
     |> read_manifest
     |> parse_manifest
@@ -175,33 +143,22 @@ module Yarn = {
           raise(Errors.Json_parse_error(path, err));
         }
     );
-  };
 
-  let is_worktree = manifest =>
-    switch (manifest.workspaces) {
-    | Some(_) => true
-    | None => false
-    };
+  let get_workspace_patterns = manifest => manifest.workspaces;
 
-  let get_workspace_patterns = manifest =>
-    manifest.workspaces
-    |> (
-      fun
-      | Some(ws) => ws
-      | None => []
-    );
+  let check_workspace_type = path => 
+    path
+    |> Workspace.check_workspace_type(
+         ~path_to_manifest,
+         ~read_parse_manifest,
+         ~get_workspace_patterns,
+       );
+  
 
   let find_workspace_dirs = cwd =>
-    Workspace.find_matching_dirs(
-      cwd,
-      ~get_workspace_patterns,
-      ~read_parse_manifest,
-      ~is_worktree,
-      (),
-    );
+    Workspace.find_matching_dirs(cwd, ~check_workspace_type, ());
 
-  let rec find_root_dir =
-    Workspace.find_root_dir(~read_parse_manifest, ~is_worktree);
+  let rec find_root_dir = Workspace.find_root_dir(~check_workspace_type);
 
   let detect = cwd => {
     Logs.debug(m => m("Checking if this is a Yarn managed workspace..."));

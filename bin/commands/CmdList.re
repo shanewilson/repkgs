@@ -15,7 +15,7 @@ let cmd = {
 
   let cwd = {
     let doc = "Run the program in directory $(docv).";
-    Arg.(value & opt(dir, Sys.getcwd()) & info(["cwd"], ~docv="DIR", ~doc));
+    Arg.(value & opt(dir, Library.Fs.get_cwd() |> Fpath.to_string) & info(["cwd"], ~docv="DIR", ~doc));
   };
 
   let runCommand = (_, cwd) => run(~cwd) |> Utils.runCmd;

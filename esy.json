@@ -27,8 +27,10 @@
         "Console = require('console/lib')", "Pastel = require('pastel/lib')",
         "Logs = require('logs')", "Fpath = require('fpath')",
         "Dune_glob = require('@opam/dune-glob')",
-        "Yojson = require('@opam/yojson')"
+        "Yojson = require('@opam/yojson')",
+        "Bos_setup = require('bos/setup')"
       ],
+      "flags": [ "-open", "Bos_setup" ],
       "preprocess": [ "pps", "lwt_ppx", "ppx_deriving_yojson" ],
       "includeSubdirs": "unqualified"
     },
@@ -56,10 +58,10 @@
   },
   "dependencies": {
     "@esy-ocaml/reason": "*",
+    "@opam/bos": "0.2.0",
     "@opam/cmdliner": "1.0.4",
     "@opam/dune": "2.1.3",
     "@opam/dune-glob": "2.1.3",
-    
     "@opam/fmt": "0.8.8",
     "@opam/fpath": "0.7.2",
     "@opam/logs": "0.7.0",
