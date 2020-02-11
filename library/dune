@@ -6,7 +6,7 @@
 (library (public_name repkgs--cli.library.pesy-modules)
     (name RepkgsCliLibraryPesyModules) (modules RepkgsCliLibraryPesyModules)
     (libraries bos.setup console.lib dune-glob ezjsonm fpath logs pastel.lib
-        ppx_protocol_conv_jsonm)
+        ppx_protocol_conv_jsonm ppx_protocol_conv_yaml)
     (preprocess (pps lwt_ppx ppx_protocol_conv)))
 (rule
     (with-stdout-to RepkgsCliLibraryPesyModules.re
@@ -18,5 +18,6 @@
             \nmodule Dune_glob = Dune_glob;\
             \nmodule Bos_setup = Bos_setup;\
             \nmodule Protocol_conv_jsonm = Protocol_conv_jsonm;\
+            \nmodule Protocol_conv_yaml = Protocol_conv_yaml;\
             \nmodule Ezjsonm = Ezjsonm;")))
 (include_subdirs unqualified)

@@ -1,11 +1,17 @@
 let read_json = path =>
-    path
-    |> Bos.OS.File.exists
-    |> (
-      fun
-      | Ok(s) => path |> Fpath.to_string |> open_in |> Ezjsonm.from_channel
-      | Error(`Msg(msg)) => raise(Errors.Fs_error(path, msg))
-    );
+  path
+  |> Bos.OS.File.exists
+  |> (
+    fun
+    | Ok(s) =>
+      try(path |> Fpath.to_string |> open_in |> Ezjsonm.from_channel) {
+      | Ezjsonm.Parse_error(_, msg) =>
+        raise(Errors.Json_parse_error(path, msg))
+      | _ => raise(Errors.Fs_error(path, "beep"))
+      }
+    | Error(`Msg(msg)) => raise(Errors.Fs_dne(path))
+  );
+
 let get_cwd = () =>
   switch (Bos.OS.Dir.current()) {
   | Ok(cwd) => cwd
@@ -56,10 +62,8 @@ let rec ls_dir = (path: Fpath.t) =>
       fun
       | Error(`Msg(msg)) => raise(Errors.Fs_error(p, msg))
       | Ok(ls) =>
-        ls
-        |> List.map(seg => Fpath.append(p, seg) |> ls_dir)
-        |> List.flatten
+        ls |> List.map(seg => Fpath.append(p, seg) |> ls_dir) |> List.flatten
     )
-    | Ok(Dne) => raise(Errors.Fs_dne(path))
-    | Error(`Msg(msg)) => raise(Errors.Fs_error(path, msg))
+  | Ok(Dne) => raise(Errors.Fs_dne(path))
+  | Error(`Msg(msg)) => raise(Errors.Fs_error(path, msg))
   };

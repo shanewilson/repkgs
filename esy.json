@@ -29,12 +29,11 @@
         "Dune_glob = require('@opam/dune-glob')",
         "Bos_setup = require('bos/setup')",
         "Protocol_conv_jsonm = require('@opam/ppx_protocol_conv_jsonm')",
+        "Protocol_conv_yaml = require('@opam/ppx_protocol_conv_yaml')",
         "Ezjsonm = require('@opam/ezjsonm')"
       ],
       "flags": [ "-open", "Bos_setup" ],
-      "preprocess": [
-        "pps", "lwt_ppx", "ppx_protocol_conv"
-      ],
+      "preprocess": [ "pps", "lwt_ppx", "ppx_protocol_conv" ],
       "includeSubdirs": "unqualified"
     },
     "bin": {
@@ -73,6 +72,7 @@
     "@opam/lwt_ppx": "2.0.0",
     "@opam/ppx_deriving_yojson": "3.5.1",
     "@opam/ppx_protocol_conv_jsonm": "5.1.0",
+    "@opam/ppx_protocol_conv_yaml": "5.1.0",
     "@reason-native/console": "*",
     "@reason-native/pastel": "*",
     "@reason-native/rely": "*",

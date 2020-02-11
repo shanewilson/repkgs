@@ -86,9 +86,9 @@ module Workspace = {
           Logs.debug(m =>
             m("Found root directory of workspace: %s", dir |> Fpath.to_string)
           );
-          dir;
+          Some(dir);
         }
-      | None => raise(Errors.No_workspace_found);
+      | None => None
 
     let hit_max_depth = depth <= 0;
 
@@ -175,9 +175,7 @@ module Yarn = {
   let detect = cwd => {
     Logs.debug(m => m("Checking if this is a Yarn managed workspace..."));
 
-    try(find_root_dir(cwd, ()) |> (x => Some(x))) {
-    | _ => None
-    };
+    find_root_dir(cwd, ());
   };
 };
 
