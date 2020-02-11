@@ -69,8 +69,10 @@ module Workspace = {
     );
   };
 
+  let max_package_depth = 5;
+
   let rec find_root_dir =
-          (path, ~check_workspace_type, ~closest=None, ~depth=3, ()) => {
+          (path, ~check_workspace_type, ~closest=None, ~depth=max_package_depth, ()) => {
     let stop =
       fun
       | Some(dir) => {
@@ -109,7 +111,7 @@ module Workspace = {
             Logs.debug(m =>
               m("Detected worktree at: %s", p |> Fpath.to_string)
             );
-            frd(~closest=Some(p), ~depth=3, ());
+            frd(~closest=Some(p), ~depth=max_package_depth, ());
           }
         | _ => frd(~closest, ~depth=depth - 1, ())
       );
