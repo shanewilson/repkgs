@@ -27,11 +27,14 @@
         "Console = require('console/lib')", "Pastel = require('pastel/lib')",
         "Logs = require('logs')", "Fpath = require('fpath')",
         "Dune_glob = require('@opam/dune-glob')",
-        "Yojson = require('@opam/yojson')",
-        "Bos_setup = require('bos/setup')"
+        "Bos_setup = require('bos/setup')",
+        "Protocol_conv_jsonm = require('@opam/ppx_protocol_conv_jsonm')",
+        "Ezjsonm = require('@opam/ezjsonm')"
       ],
       "flags": [ "-open", "Bos_setup" ],
-      "preprocess": [ "pps", "lwt_ppx", "ppx_deriving_yojson" ],
+      "preprocess": [
+        "pps", "lwt_ppx", "ppx_protocol_conv"
+      ],
       "includeSubdirs": "unqualified"
     },
     "bin": {
@@ -62,13 +65,14 @@
     "@opam/cmdliner": "1.0.4",
     "@opam/dune": "2.1.3",
     "@opam/dune-glob": "2.1.3",
+    "@opam/ezjsonm": "1.1.0",
     "@opam/fmt": "0.8.8",
     "@opam/fpath": "0.7.2",
     "@opam/logs": "0.7.0",
     "@opam/lwt": "5.1.1",
     "@opam/lwt_ppx": "2.0.0",
     "@opam/ppx_deriving_yojson": "3.5.1",
-    "@opam/yojson": "1.7.0",
+    "@opam/ppx_protocol_conv_jsonm": "5.1.0",
     "@reason-native/console": "*",
     "@reason-native/pastel": "*",
     "@reason-native/rely": "*",

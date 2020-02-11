@@ -10,7 +10,8 @@ module Workspace = {
     | Package(x) => x
     | WorkTree(x, _) => x;
 
-  let path_to_manifest = (path, manifest_file) => manifest_file |> Fpath.append(path |> Fs.normalize_dir_path);
+  let path_to_manifest = (path, manifest_file) =>
+    manifest_file |> Fpath.append(path |> Fs.normalize_dir_path);
 
   let normalize_patterns = (cwd, patterns) =>
     patterns
@@ -72,7 +73,13 @@ module Workspace = {
   let max_package_depth = 5;
 
   let rec find_root_dir =
-          (path, ~check_workspace_type, ~closest=None, ~depth=max_package_depth, ()) => {
+          (
+            path,
+            ~check_workspace_type,
+            ~closest=None,
+            ~depth=max_package_depth,
+            (),
+          ) => {
     let stop =
       fun
       | Some(dir) => {
@@ -120,7 +127,8 @@ module Workspace = {
 };
 
 module Yarn = {
-  [@deriving of_yojson({strict: false})]
+  open Protocol_conv_jsonm;
+  [@deriving protocol(~driver=(module Jsonm))]
   type t = {
     [@default None]
     workspaces: option(list(string)),
@@ -128,11 +136,12 @@ module Yarn = {
 
   let manifest_file = Fpath.v("package.json");
 
-  let path_to_manifest = path => Workspace.path_to_manifest(path, manifest_file)
+  let path_to_manifest = path =>
+    Workspace.path_to_manifest(path, manifest_file);
 
-  let read_manifest = path => path |> Fs.read_json;
+  let read_manifest = Fs.read_json
 
-  let parse_manifest = manifest => manifest |> of_yojson;
+  let parse_manifest = of_jsonm;
 
   let read_parse_manifest = path =>
     path
@@ -142,20 +151,21 @@ module Yarn = {
       fun
       | Ok(wj) => wj
       | Error(err) => {
-          raise(Errors.Json_parse_error(path, err));
+          raise(
+            Errors.Json_parse_error(path, err |> Jsonm.error_to_string_hum),
+          );
         }
     );
 
   let get_workspace_patterns = manifest => manifest.workspaces;
 
-  let check_workspace_type = path => 
+  let check_workspace_type = path =>
     path
     |> Workspace.check_workspace_type(
          ~path_to_manifest,
          ~read_parse_manifest,
          ~get_workspace_patterns,
        );
-  
 
   let find_workspace_dirs = cwd =>
     Workspace.find_matching_dirs(cwd, ~check_workspace_type, ());

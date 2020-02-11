@@ -1,8 +1,11 @@
 let read_json = path =>
-  try(path |> Fpath.to_string |> Yojson.Safe.from_file) {
-  | Yojson.Json_error(msg) => raise(Errors.Json_parse_error(path, msg))
-  };
-
+    path
+    |> Bos.OS.File.exists
+    |> (
+      fun
+      | Ok(s) => path |> Fpath.to_string |> open_in |> Ezjsonm.from_channel
+      | Error(`Msg(msg)) => raise(Errors.Fs_error(path, msg))
+    );
 let get_cwd = () =>
   switch (Bos.OS.Dir.current()) {
   | Ok(cwd) => cwd

@@ -1,5 +1,6 @@
 module PackageJson = {
-  [@deriving of_yojson({strict: false})]
+  open Protocol_conv_jsonm;
+  [@deriving protocol(~driver=(module Jsonm))]
   type t = {
     name: string,
     [@default None]
@@ -10,9 +11,9 @@ module PackageJson = {
 
   let path_to_manifest = path => manifest_file |> Fpath.add_seg(path);
 
-  let read_manifest = path => path |> Fs.read_json;
+  let read_manifest = Fs.read_json;
 
-  let parse_manifest = manifest => manifest |> of_yojson;
+  let parse_manifest = of_jsonm;
 
   let read_parse_manifest = path => {
     let path = path |> path_to_manifest;
@@ -23,7 +24,9 @@ module PackageJson = {
       fun
       | Ok(wj) => wj
       | Error(err) => {
-          raise(Errors.Json_parse_error(path, err));
+          raise(
+            Errors.Json_parse_error(path, err |> Jsonm.error_to_string_hum),
+          );
         }
     );
   };
