@@ -22,13 +22,13 @@ Adds a common interface to running commands in a monorepo that is compatible wit
 #### Yarn v2.x nested workspaces
 
 ```sh
-❯ repkgs list --cwd __fixtures__/yarn_v2 -v
-[INFO] Detected workspace manager: Yarn
-@yarn-v2/worktree
-@workspace-a/worktree
+❯ repkgs  --cwd __fixtures__/yarn_v2 -v --include-worktree
+RePkgs.exe: [INFO] Detected workspace manager: Yarn
+@yarn-v2/worktree (root)
+@workspace-a/worktree (worktree)
 @workspace-a/package-a
 @workspace-a/package-b
-@workspace-b/worktree
+@workspace-b/worktree (worktree)
 @workspace-b/package-a
 @workspace-b/package-b
 ```
@@ -38,7 +38,6 @@ Adds a common interface to running commands in a monorepo that is compatible wit
 ```sh
 ❯ repkgs list --cwd __fixtures__/yarn_v1 -v
 [INFO] Detected workspace manager: Yarn
-@yarn-v1/worktree
 @workspace-a/package-a
 @workspace-a/package-b
 @workspace-b/package-a
@@ -48,9 +47,9 @@ Adds a common interface to running commands in a monorepo that is compatible wit
 #### Pnpm
 
 ```sh
-❯ repkgs list --cwd __fixtures__/pnpm -v
+❯ repkgs list --cwd __fixtures__/pnpm -v --include-worktree
 [INFO] Detected workspace manager: Pnpm
-@pnpm/worktree
+@pnpm/worktree (root)
 @workspace-a/package-a
 @workspace-a/package-b
 @workspace-b/package-a
