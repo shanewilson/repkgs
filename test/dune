@@ -1,15 +1,14 @@
 (library (name RepkgsCliTest) (public_name repkgs--cli.test)
     (modules (:standard \ RepkgsCliTestPesyModules))
     (libraries repkgs--cli.test.pesy-modules)
-    (flags -open Base -linkall -g -w -9 -open RepkgsCliTestPesyModules))
+    (flags -linkall -g -w -9 -open RepkgsCliTestPesyModules))
 (library (public_name repkgs--cli.test.pesy-modules)
     (name RepkgsCliTestPesyModules) (modules RepkgsCliTestPesyModules)
-    (libraries base lwt.unix rely.lib repkgs--cli.library))
+    (libraries lwt.unix rely.lib repkgs--cli.library))
 (rule
     (with-stdout-to RepkgsCliTestPesyModules.re
         (run echo
              "module Library = RepkgsCliLibrary;\
-            \nmodule Base = Base;\
             \nmodule Rely = Rely;\
             \nmodule Lwt_unix = Lwt_unix;")))
 (include_subdirs unqualified)

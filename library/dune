@@ -1,14 +1,21 @@
 (library (name RepkgsCliLibrary) (public_name repkgs--cli.library)
     (modules (:standard \ RepkgsCliLibraryPesyModules))
     (libraries repkgs--cli.library.pesy-modules)
-    (flags -open Base -open RepkgsCliLibraryPesyModules))
+    (flags -open Bos_setup -open RepkgsCliLibraryPesyModules)
+    (preprocess (pps lwt_ppx ppx_protocol_conv)))
 (library (public_name repkgs--cli.library.pesy-modules)
     (name RepkgsCliLibraryPesyModules) (modules RepkgsCliLibraryPesyModules)
-    (libraries base console.lib pastel.lib))
+    (libraries bos.setup console.lib dune-glob fpath logs pastel.lib
+        ppx_protocol_conv_yaml)
+    (preprocess (pps lwt_ppx ppx_protocol_conv)))
 (rule
     (with-stdout-to RepkgsCliLibraryPesyModules.re
         (run echo
-             "module Base = Base;\
-            \nmodule Console = Console;\
-            \nmodule Pastel = Pastel;")))
+             "module Console = Console;\
+            \nmodule Pastel = Pastel;\
+            \nmodule Logs = Logs;\
+            \nmodule Fpath = Fpath;\
+            \nmodule Dune_glob = Dune_glob;\
+            \nmodule Bos_setup = Bos_setup;\
+            \nmodule Protocol_conv_yaml = Protocol_conv_yaml;")))
 (include_subdirs unqualified)

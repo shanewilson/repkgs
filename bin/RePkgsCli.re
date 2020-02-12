@@ -1,14 +1,13 @@
 open Cmdliner;
 
 let defaultCmd = {
-  let doc = "";
+  let doc = "workspace manager";
 
   (
-    Term.(ret(const(_ => `Help((`Pager, None))) $ const())),
+    Term.(ret(const(_ => `Help((`Pager, None))) $ const()) $ Logger.args),
     Term.info(
-      "spin-cli",
+      "repkgs",
       ~doc,
-      ~envs=Man.envs,
       ~version=Man.version,
       ~exits=Man.exits,
       ~man=Man.man,
@@ -17,13 +16,7 @@ let defaultCmd = {
   );
 };
 
-let argv =
-  Sys.get_argv()
-  |> Array.map(~f=arg =>
-       switch (arg) {
-       | "-v" => "--version"
-       | x => x
-       }
-     );
-
-let _ = Term.exit @@ Term.eval_choice(defaultCmd, Commands.all, ~argv);
+let _ = switch (Term.eval_choice(defaultCmd, Commands.all)) {
+  | `Error(err_code) => exit(1)
+  | _ => exit(Logs.err_count() > 0 ? 1 : 0)
+  };

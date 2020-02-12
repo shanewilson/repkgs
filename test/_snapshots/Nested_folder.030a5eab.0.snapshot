@@ -1,0 +1,6 @@
+Nested folder › Yarn v2
+@workspace-a/package-a
+@workspace-a/package-b
+@workspace-b/package-a
+@workspace-b/package-b
+

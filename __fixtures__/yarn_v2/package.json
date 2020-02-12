@@ -1,0 +1,11 @@
+{
+  "name": "@yarn-v2/worktree",
+  "private": true,
+  "workspaces": [
+    "workspace-a",
+    "workspace-b"
+  ],
+  "scripts": {
+    "test": "yarn workspaces list --json"
+  }
+}

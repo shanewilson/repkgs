@@ -1,0 +1,7 @@
+--include-worktree › Yarn v1
+@yarn-v1/worktree (root)
+@workspace-a/package-a
+@workspace-a/package-b
+@workspace-b/package-a
+@workspace-b/package-b
+

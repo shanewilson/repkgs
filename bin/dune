@@ -1,19 +1,26 @@
 (executable (name RePkgsCli)
     (modules (:standard \ RepkgsCliBinPesyModules))
     (public_name RePkgs.exe) (libraries repkgs--cli.bin.pesy-modules)
-    (flags -open Base -open RepkgsCliBinPesyModules))
+    (flags -open RepkgsCliBinPesyModules) (preprocess (pps lwt_ppx)))
 (library (public_name repkgs--cli.bin.pesy-modules)
     (name RepkgsCliBinPesyModules) (modules RepkgsCliBinPesyModules)
-    (libraries base cmdliner console.lib lwt lwt.unix pastel.lib
-        repkgs--cli.library))
+    (libraries cmdliner console.lib fmt.cli fmt.tty fpath logs logs.cli
+        logs.fmt logs.lwt lwt lwt.unix pastel.lib repkgs--cli.library)
+    (preprocess (pps lwt_ppx)))
 (rule
     (with-stdout-to RepkgsCliBinPesyModules.re
         (run echo
              "module Library = RepkgsCliLibrary;\
-            \nmodule Base = Base;\
             \nmodule Console = Console;\
             \nmodule Pastel = Pastel;\
             \nmodule Cmdliner = Cmdliner;\
             \nmodule Lwt = Lwt;\
-            \nmodule Lwt_unix = Lwt_unix;")))
+            \nmodule Lwt_unix = Lwt_unix;\
+            \nmodule Logs = Logs;\
+            \nmodule Logs_cli = Logs_cli;\
+            \nmodule Logs_fmt = Logs_fmt;\
+            \nmodule Logs_lwt = Logs_lwt;\
+            \nmodule Fmt_tty = Fmt_tty;\
+            \nmodule Fmt_cli = Fmt_cli;\
+            \nmodule Fpath = Fpath;")))
 (include_subdirs unqualified)

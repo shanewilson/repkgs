@@ -15,7 +15,86 @@
   <img alt="Build status" src="https://github.com/shanewilson/repkgs/workflows/CI/badge.svg">
 </p>
 
-## Getting Started
+## What is this?
+
+Adds a common interface to running commands in a monorepo that is compatible with Yarn v1 and v2 Workspaces, Pnpm and Rush.
+
+#### Yarn v2.x nested workspaces
+
+```sh
+❯ repkgs list --cwd __fixtures__/yarn_v2 -v
+[INFO] Detected workspace manager: Yarn
+@yarn-v2/worktree
+@workspace-a/worktree
+@workspace-a/package-a
+@workspace-a/package-b
+@workspace-b/worktree
+@workspace-b/package-a
+@workspace-b/package-b
+```
+
+#### Yarn v1.x workspaces
+
+```sh
+❯ repkgs list --cwd __fixtures__/yarn_v1 -v
+[INFO] Detected workspace manager: Yarn
+@yarn-v1/worktree
+@workspace-a/package-a
+@workspace-a/package-b
+@workspace-b/package-a
+@workspace-b/package-b
+```
+
+#### Pnpm
+
+```sh
+❯ repkgs list --cwd __fixtures__/pnpm -v
+[INFO] Detected workspace manager: Pnpm
+@pnpm/worktree
+@workspace-a/package-a
+@workspace-a/package-b
+@workspace-b/package-a
+@workspace-b/package-b
+```
+
+#### Rush
+
+```sh
+❯ repkgs list --cwd __fixtures__/rush -v
+[INFO] Detected workspace manager: Rush
+@workspace-a/package-a
+@workspace-a/package-b
+@workspace-b/package-a
+@workspace-b/package-b
+```
+
+
+## Development
+
+```
+❯ esy install
+❯ esy
+```
+
+#### CLI
+
+```
+❯ esy start list --cwd __fixtures__/yarn
+@yarn/worktree
+@workspace-a/worktree
+@workspace-a/package-a
+@workspace-a/package-b
+@workspace-b/worktree
+@workspace-b/package-a
+@workspace-b/package-b
+```
+
+#### Tests
+
+```
+❯ esy test
+```
+
 
 ### Bucklescript
 
@@ -29,7 +108,7 @@
 #### CLI
 
 ```
-❯ yarn repkgs list --cwd "__fixtures__/berry"
+❯ yarn repkgs list --cwd __fixtures__/berry
 yarn run v1.21.1
 $ node -r esm ./src/RepkgsCli.bs.js list --cwd __fixtures__/berry
 verbosity = normal
@@ -48,25 +127,4 @@ cwd = __fixtures__/berry
 
 ```
 ❯ yarn test --watch
-```
-
-### Native
-
-#### Development
-
-```
-❯ esy install
-❯ esy
-```
-
-#### CLI
-
-```
-❯ esy start hello Tom
-```
-
-#### Tests
-
-```
-❯ esy test
 ```

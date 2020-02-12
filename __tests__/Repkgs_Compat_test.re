@@ -107,7 +107,7 @@ describe("Compat", () => {
     );
   });
   describe("Yarn_V1", () => {
-    let dir = "yarn";
+    let dir = "yarn_v1";
     let cwd = Node.Path.join2(fixturesDir, dir);
     test("patterns", () =>
       compareArrays(cwd->Yarn_V1.patterns, patterns)
@@ -144,7 +144,7 @@ describe("Compat", () => {
     );
   });
   describe("Yarn_V2", () => {
-    let dir = "berry";
+    let dir = "yarn_v2";
     let cwd = Node.Path.join2(fixturesDir, dir);
 
     describe("findRoot", () => {
@@ -223,7 +223,7 @@ describe("Compat", () => {
       );
     });
     describe("Yarn_V1 workspace", () => {
-      let dir = "yarn/workspace-a";
+      let dir = "yarn_v1/workspace-a";
       let cwd = Node.Path.join2(fixturesDir, dir);
       test("Pnpm", () =>
         cwd |> Pnpm.detect |> expect |> toBe(false)
@@ -239,7 +239,7 @@ describe("Compat", () => {
       );
     });
     describe("Yarn_V2 workspace", () => {
-      let dir = "berry/workspace-a";
+      let dir = "yarn_v2/workspace-a";
       let cwd = Node.Path.join2(fixturesDir, dir);
       test("Pnpm", () =>
         cwd |> Pnpm.detect |> expect |> toBe(false)
@@ -259,7 +259,7 @@ describe("Compat", () => {
     describe("detectWorkspaceManager", () => {
       test("Yarn_V1", () =>
         fixturesDir
-        |> Node.Path.join2(_, "yarn")
+        |> Node.Path.join2(_, "yarn_v1")
         |> detectWorkspaceManager
         |> Belt.Result.getExn
         |> expect
@@ -267,7 +267,7 @@ describe("Compat", () => {
       );
       test("Yarn_V2", () =>
         fixturesDir
-        |> Node.Path.join2(_, "berry")
+        |> Node.Path.join2(_, "yarn_v2")
         |> detectWorkspaceManager
         |> Belt.Result.getExn
         |> expect
