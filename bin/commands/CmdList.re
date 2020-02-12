@@ -3,11 +3,20 @@ open Cmdliner;
 let run = (~cwd, ~include_worktree, ()) => {
   let _ =
     Library.Manager.find_workspaces(cwd)
-    |> List.filter((pkg: Library.Manager.Workspace.t) => switch (include_worktree, pkg.kind) {
-    | (true, _)
-    | (_, Package(_)) => true
-    | (false, _) => false
-    })
+    |> List.filter((pkg: Library.Manager.Workspace.t) =>
+         switch (include_worktree, pkg.kind) {
+         | (true, _)
+         | (_, Package(_)) => true
+         | (false, _) => false
+         }
+       )
+    |> List.fast_sort(
+         (a: Library.Manager.Workspace.t, b: Library.Manager.Workspace.t) =>
+         String.compare(
+           a.kind |> Library.Compat.Workspace.to_path |> Fpath.to_string,
+           b.kind |> Library.Compat.Workspace.to_path |> Fpath.to_string,
+         )
+       )
     |> List.iter((x: Library.Manager.Workspace.t) =>
          switch (x.kind) {
          | Root(_) => Logs.app(m => m("%s (root)", x.name))
@@ -31,17 +40,13 @@ let cmd = {
     );
   };
 
-
   let include_worktree = {
     let doc = "Include worktree/root dir in output.";
-    Arg.(
-      value
-      & flag
-      & info(["include-worktree"], ~doc)
-    );
+    Arg.(value & flag & info(["include-worktree"], ~doc));
   };
 
-  let runCommand = (_, cwd, include_worktree) => run(~cwd, ~include_worktree) |> Utils.runCmd;
+  let runCommand = (_, cwd, include_worktree) =>
+    run(~cwd, ~include_worktree) |> Utils.runCmd;
 
   (
     Term.(const(runCommand) $ Logger.args $ cwd $ include_worktree),
