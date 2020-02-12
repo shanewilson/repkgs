@@ -194,18 +194,59 @@ module Pnpm = {
   };
 };
 
+
+module Rush = {
+  open Protocol_conv_yaml;
+  [@deriving protocol(~driver=(module Yaml))]
+  type project = {
+    packageName: string,
+    projectFolder: string
+  };
+  [@deriving protocol(~driver=(module Yaml))]
+  type t = {
+    projects: list(project),
+  };
+
+  let manifest_file = Fpath.v("rush.json");
+
+  let read_parse_manifest = Fs.read_and_parse(~parser=of_yaml);
+
+  let get_workspace_patterns = manifest => Some(manifest.projects |> List.map(x => x.projectFolder));
+
+  let check_workspace_type = path =>
+    path
+    |> Workspace.check_workspace_type(
+         ~manifest_file,
+         ~read_parse_manifest,
+         ~get_workspace_patterns,
+       );
+
+  let find_workspace_dirs = cwd =>
+    Workspace.find_matching_dirs(cwd, ~check_workspace_type, ());
+
+  let rec find_root_dir = Workspace.find_root_dir(~check_workspace_type);
+
+  let detect = cwd => {
+    Logs.debug(m => m("Checking if this is a Rush managed workspace..."));
+
+    find_root_dir(cwd, ());
+  };
+};
+
 type t =
+| Rush
   | Pnpm
   | Yarn;
 
 let to_string =
   fun
+  | Rush => "Rush"
   | Yarn => "Yarn"
   | Pnpm => "Pnpm";
 
 // This order matters since other tools might add workspaces support
 // they need to be checked first so everything isn't set as Yarn
-let managers = [(Pnpm.detect, Pnpm), (Yarn.detect, Yarn)];
+let managers = [(Pnpm.detect, Pnpm), (Rush.detect, Rush),(Yarn.detect, Yarn)];
 
 let detect_workspace_manager = cwd =>
   managers
@@ -236,10 +277,12 @@ let find_root_dir = (wsmgr, cwd) =>
   switch (wsmgr) {
   | Yarn => cwd |> Yarn.find_root_dir
   | Pnpm => cwd |> Pnpm.find_root_dir
+  | Rush => cwd |> Rush.find_root_dir
   };
 
 let find_workspace_dirs = (wsmgr, cwd) =>
   switch (wsmgr) {
   | Yarn => cwd |> Yarn.find_workspace_dirs
   | Pnpm => cwd |> Pnpm.find_workspace_dirs
+  | Rush => cwd |> Rush.find_workspace_dirs
   };

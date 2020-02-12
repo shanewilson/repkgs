@@ -35,16 +35,22 @@ let find_workspaces = cwd => {
     );
 
   Compat.find_workspace_dirs(wsmgr, root)
-  |> List.map((kind: Compat.Workspace.t) =>
+  |> List.map((kind) =>
        (
          {
            let path = kind |> Compat.Workspace.to_path;
-           let packageJson =
+
+           let manifest =
              Compat.Workspace.path_to_manifest(
                path,
                PackageJson.manifest_file,
-             )
-             |> PackageJson.read_parse_manifest;
+             );
+
+           let packageJson =
+             switch (Fs.exists(manifest)) {
+             | Ok(File(p)) => p |> PackageJson.read_parse_manifest
+             | _ => {name: "root", version: None}
+             };
 
            {kind, name: packageJson.name, packageJson};
          }: Workspace.t

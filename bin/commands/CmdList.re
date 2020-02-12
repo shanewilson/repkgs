@@ -4,7 +4,11 @@ let run = (~cwd, ()) => {
   let _ =
     Library.Manager.find_workspaces(cwd)
     |> List.iter((x: Library.Manager.Workspace.t) =>
-         Logs.app(m => m("%s", x.name))
+         switch (x.kind) {
+         | Root(_) => Logs.app(m => m("root::%s", x.name))
+         | WorkTree(_) => Logs.app(m => m("worktree::%s", x.name))
+         | Package(_) => Logs.app(m => m("package::%s", x.name))
+         }
        );
 
   Lwt.return_ok();
@@ -15,7 +19,11 @@ let cmd = {
 
   let cwd = {
     let doc = "Run the program in directory $(docv).";
-    Arg.(value & opt(dir, Library.Fs.get_cwd() |> Fpath.to_string) & info(["cwd"], ~docv="DIR", ~doc));
+    Arg.(
+      value
+      & opt(dir, Library.Fs.get_cwd() |> Fpath.to_string)
+      & info(["cwd"], ~docv="DIR", ~doc)
+    );
   };
 
   let runCommand = (_, cwd) => run(~cwd) |> Utils.runCmd;
