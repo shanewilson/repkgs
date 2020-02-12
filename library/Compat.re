@@ -20,8 +20,8 @@ module Workspace = {
        );
 
   let check_workspace_type =
-      (path, ~path_to_manifest, ~read_parse_manifest, ~get_workspace_patterns) =>
-    switch (path |> path_to_manifest |> Fs.exists) {
+      (path, ~manifest_file, ~read_parse_manifest, ~get_workspace_patterns) =>
+    switch (manifest_file |> path_to_manifest(path) |> Fs.exists) {
     | Ok(File(p)) =>
       p
       |> read_parse_manifest
@@ -136,33 +136,14 @@ module Yarn = {
 
   let manifest_file = Fpath.v("package.json");
 
-  let path_to_manifest = path =>
-    Workspace.path_to_manifest(path, manifest_file);
-
-  let read_manifest = Fs.read_yaml;
-
-  let parse_manifest = of_yaml;
-
-  let read_parse_manifest = path =>
-    path
-    |> read_manifest
-    |> parse_manifest
-    |> (
-      fun
-      | Ok(wj) => wj
-      | Error(err) => {
-          raise(
-            Errors.Json_parse_error(path, err |> Yaml.error_to_string_hum),
-          );
-        }
-    );
+  let read_parse_manifest = Fs.read_and_parse(~parser=of_yaml);
 
   let get_workspace_patterns = manifest => manifest.workspaces;
 
   let check_workspace_type = path =>
     path
     |> Workspace.check_workspace_type(
-         ~path_to_manifest,
+         ~manifest_file,
          ~read_parse_manifest,
          ~get_workspace_patterns,
        );
@@ -189,34 +170,14 @@ module Pnpm = {
 
   let manifest_file = Fpath.v("pnpm-workspace.yaml");
 
-  let path_to_manifest = path =>
-    Workspace.path_to_manifest(path, manifest_file);
-
-  let read_manifest = Fs.read_yaml;
-
-  let parse_manifest = of_yaml;
-
-  let read_parse_manifest = path =>
-    path
-    |> read_manifest
-    |> parse_manifest
-    |> (
-      fun
-      | Ok(wj) => wj
-      | Error(err) => {
-          Console.log("beep");
-          raise(
-            Errors.Json_parse_error(path, err |> Yaml.error_to_string_hum),
-          );
-        }
-    );
+  let read_parse_manifest = Fs.read_and_parse(~parser=of_yaml);
 
   let get_workspace_patterns = manifest => manifest.packages;
 
   let check_workspace_type = path =>
     path
     |> Workspace.check_workspace_type(
-         ~path_to_manifest,
+         ~manifest_file,
          ~read_parse_manifest,
          ~get_workspace_patterns,
        );

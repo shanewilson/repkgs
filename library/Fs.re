@@ -24,30 +24,29 @@ let read = path =>
     | Ok(data) => data
     | Error(`Msg(msg)) => raise(Errors.Fs_error(path, msg))
   );
-  
-let read_json = path =>
+
+let yaml = path =>
   path
   |> read
+  |> Yaml.of_string
   |> (
-    data =>
-      try(data |> Ezjsonm.from_string) {
-      | Ezjsonm.Parse_error(_, msg) =>
-        raise(Errors.Json_parse_error(path, msg))
+    fun
+    | Ok(data) => data
+    | Error(`Msg(msg)) => raise(Errors.Fs_error(path, msg))
+  );
+
+let read_and_parse = (path, ~parser) => {
+  path
+  |> yaml
+  |> parser
+  |> (
+    fun
+    | Ok(wj) => wj
+    | Error(err) => {
+        raise(Errors.Fs_parse_error(path, err));
       }
   );
-let read_yaml = path =>
-  path
-  |> read
-  |> (
-    data =>
-      data |> Yaml.of_string |> fun
-      | Ok(wj) => wj
-      | Error(err) => {
-          raise(
-            Errors.Json_parse_error(path, "beep"),
-          );
-        }
-  );
+};
 
 let get_cwd = () =>
   switch (Bos.OS.Dir.current()) {

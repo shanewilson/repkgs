@@ -9,22 +9,7 @@ module PackageJson = {
 
   let manifest_file = Fpath.v("package.json");
 
-  let read_manifest = Fs.read_yaml;
-
-  let parse_manifest = of_yaml;
-
-  let read_parse_manifest = path => {
-    path
-    |> read_manifest
-    |> parse_manifest
-    |> (
-      fun
-      | Ok(wj) => wj
-      | Error(err) => {
-          raise(Errors.Fs_error(path, err |> Yaml.error_to_string_hum));
-        }
-    );
-  };
+  let read_parse_manifest = Fs.read_and_parse(~parser=of_yaml);
 };
 
 module Workspace = {

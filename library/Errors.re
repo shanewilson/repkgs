@@ -1,8 +1,11 @@
+open Protocol_conv_yaml;
+
 exception Missing_env_var(string);
 exception Json_parse_error(Fpath.t, string);
 exception Fs_dne(Fpath.t);
 exception Fs_cwd(string);
 exception Fs_error(Fpath.t, string);
+exception Fs_parse_error(Fpath.t, Yaml.error);
 exception No_workspace_found;
 
 type error = {
@@ -31,9 +34,7 @@ let handleErrors = fn =>
     exit(1);
   | Fs_dne(path) =>
     let%lwt _ =
-      Logs_lwt.err(m =>
-        m("Looks like the following path does not exist:")
-      );
+      Logs_lwt.err(m => m("Looks like the following path does not exist:"));
     let%lwt _ = Logs_lwt.err(m => m("%s", path |> Fpath.to_string));
     exit(1);
   | Fs_error(path, msg) =>
@@ -45,6 +46,17 @@ let handleErrors = fn =>
     let%lwt _ = Logs_lwt.err(m => m("Here is the error:"));
     let%lwt _ = Logs_lwt.err(m => m("%s", msg));
     exit(1);
+  | Fs_parse_error(path, exn) =>
+    let%lwt _ =
+      Logs_lwt.err(m =>
+        m("Looks like there was a problem parsing the following file:")
+      );
+    let%lwt _ = Logs_lwt.err(m => m("%s", path |> Fpath.to_string));
+    let%lwt _ =
+      Logs_lwt.err(m =>
+        m("Here is the error:\n\n%s", exn |> Yaml.error_to_string_hum)
+      );
+    exit(1);
   | Json_parse_error(path, msg) =>
     let%lwt _ =
       Logs_lwt.err(m =>
@@ -55,10 +67,8 @@ let handleErrors = fn =>
     exit(1);
   | No_workspace_found =>
     let%lwt _ =
-      Logs_lwt.err(m =>
-        m("I was not able to find a valid workspace.")
-      );
-    
+      Logs_lwt.err(m => m("I was not able to find a valid workspace."));
+
     exit(1);
 
   | _ as exn =>
