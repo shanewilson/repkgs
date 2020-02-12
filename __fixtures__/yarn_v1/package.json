@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "workspaces": [
-    "workspace-a/packages/**",
+    "workspace-a/packages/*",
     "workspace-b/package-a",
     "workspace-b/package-b"
   ],
