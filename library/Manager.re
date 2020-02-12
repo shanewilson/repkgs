@@ -1,22 +1,19 @@
 module PackageJson = {
-  open Protocol_conv_jsonm;
-  [@deriving protocol(~driver=(module Jsonm))]
+  open Protocol_conv_yaml;
+  [@deriving protocol(~driver=(module Yaml))]
   type t = {
     name: string,
     [@default None]
     version: option(string),
   };
 
-  let manifest_file = "package.json";
+  let manifest_file = Fpath.v("package.json");
 
-  let path_to_manifest = path => manifest_file |> Fpath.add_seg(path);
+  let read_manifest = Fs.read_yaml;
 
-  let read_manifest = Fs.read_json;
-
-  let parse_manifest = of_jsonm;
+  let parse_manifest = of_yaml;
 
   let read_parse_manifest = path => {
-    let path = path |> path_to_manifest;
     path
     |> read_manifest
     |> parse_manifest
@@ -24,9 +21,7 @@ module PackageJson = {
       fun
       | Ok(wj) => wj
       | Error(err) => {
-          raise(
-            Errors.Json_parse_error(path, err |> Jsonm.error_to_string_hum),
-          );
+          raise(Errors.Fs_error(path, err |> Yaml.error_to_string_hum));
         }
     );
   };
@@ -59,7 +54,12 @@ let find_workspaces = cwd => {
        (
          {
            let path = kind |> Compat.Workspace.to_path;
-           let packageJson = path |> PackageJson.read_parse_manifest;
+           let packageJson =
+             Compat.Workspace.path_to_manifest(
+               path,
+               PackageJson.manifest_file,
+             )
+             |> PackageJson.read_parse_manifest;
 
            {kind, name: packageJson.name, packageJson};
          }: Workspace.t

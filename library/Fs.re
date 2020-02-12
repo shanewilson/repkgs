@@ -1,23 +1,3 @@
-let read_json = path =>
-  path
-  |> Bos.OS.File.exists
-  |> (
-    fun
-    | Ok(s) =>
-      try(path |> Fpath.to_string |> open_in |> Ezjsonm.from_channel) {
-      | Ezjsonm.Parse_error(_, msg) =>
-        raise(Errors.Json_parse_error(path, msg))
-      | _ => raise(Errors.Fs_error(path, "beep"))
-      }
-    | Error(`Msg(msg)) => raise(Errors.Fs_dne(path))
-  );
-
-let get_cwd = () =>
-  switch (Bos.OS.Dir.current()) {
-  | Ok(cwd) => cwd
-  | Error(`Msg(msg)) => raise(Errors.Fs_cwd(msg))
-  };
-
 type path_type =
   | Dir(Fpath.t)
   | File(Fpath.t)
@@ -35,6 +15,45 @@ let exists = path => {
   | (_, Error(`Msg(msg))) => raise(Errors.Fs_error(path, msg))
   };
 };
+
+let read = path =>
+  path
+  |> Bos.OS.File.read
+  |> (
+    fun
+    | Ok(data) => data
+    | Error(`Msg(msg)) => raise(Errors.Fs_error(path, msg))
+  );
+  
+let read_json = path =>
+  path
+  |> read
+  |> (
+    data =>
+      try(data |> Ezjsonm.from_string) {
+      | Ezjsonm.Parse_error(_, msg) =>
+        raise(Errors.Json_parse_error(path, msg))
+      }
+  );
+let read_yaml = path =>
+  path
+  |> read
+  |> (
+    data =>
+      data |> Yaml.of_string |> fun
+      | Ok(wj) => wj
+      | Error(err) => {
+          raise(
+            Errors.Json_parse_error(path, "beep"),
+          );
+        }
+  );
+
+let get_cwd = () =>
+  switch (Bos.OS.Dir.current()) {
+  | Ok(cwd) => cwd
+  | Error(`Msg(msg)) => raise(Errors.Fs_cwd(msg))
+  };
 
 let normalize_dir_path = cwd => {
   (

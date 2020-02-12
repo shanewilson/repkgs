@@ -88,7 +88,7 @@ module Workspace = {
           );
           Some(dir);
         }
-      | None => None
+      | None => None;
 
     let hit_max_depth = depth <= 0;
 
@@ -127,8 +127,8 @@ module Workspace = {
 };
 
 module Yarn = {
-  open Protocol_conv_jsonm;
-  [@deriving protocol(~driver=(module Jsonm))]
+  open Protocol_conv_yaml;
+  [@deriving protocol(~driver=(module Yaml))]
   type t = {
     [@default None]
     workspaces: option(list(string)),
@@ -139,9 +139,9 @@ module Yarn = {
   let path_to_manifest = path =>
     Workspace.path_to_manifest(path, manifest_file);
 
-  let read_manifest = Fs.read_json
+  let read_manifest = Fs.read_yaml;
 
-  let parse_manifest = of_jsonm;
+  let parse_manifest = of_yaml;
 
   let read_parse_manifest = path =>
     path
@@ -152,7 +152,7 @@ module Yarn = {
       | Ok(wj) => wj
       | Error(err) => {
           raise(
-            Errors.Json_parse_error(path, err |> Jsonm.error_to_string_hum),
+            Errors.Json_parse_error(path, err |> Yaml.error_to_string_hum),
           );
         }
     );
@@ -179,32 +179,94 @@ module Yarn = {
   };
 };
 
+module Pnpm = {
+  open Protocol_conv_yaml;
+  [@deriving protocol(~driver=(module Yaml))]
+  type t = {
+    [@default None]
+    packages: option(list(string)),
+  };
+
+  let manifest_file = Fpath.v("pnpm-workspace.yaml");
+
+  let path_to_manifest = path =>
+    Workspace.path_to_manifest(path, manifest_file);
+
+  let read_manifest = Fs.read_yaml;
+
+  let parse_manifest = of_yaml;
+
+  let read_parse_manifest = path =>
+    path
+    |> read_manifest
+    |> parse_manifest
+    |> (
+      fun
+      | Ok(wj) => wj
+      | Error(err) => {
+          Console.log("beep");
+          raise(
+            Errors.Json_parse_error(path, err |> Yaml.error_to_string_hum),
+          );
+        }
+    );
+
+  let get_workspace_patterns = manifest => manifest.packages;
+
+  let check_workspace_type = path =>
+    path
+    |> Workspace.check_workspace_type(
+         ~path_to_manifest,
+         ~read_parse_manifest,
+         ~get_workspace_patterns,
+       );
+
+  let find_workspace_dirs = cwd =>
+    Workspace.find_matching_dirs(cwd, ~check_workspace_type, ());
+
+  let rec find_root_dir = Workspace.find_root_dir(~check_workspace_type);
+
+  let detect = cwd => {
+    Logs.debug(m => m("Checking if this is a Pnpm managed workspace..."));
+
+    find_root_dir(cwd, ());
+  };
+};
+
 type t =
+  | Pnpm
   | Yarn;
 
 let to_string =
   fun
-  | Yarn => "Yarn";
+  | Yarn => "Yarn"
+  | Pnpm => "Pnpm";
 
-let managers = [(Yarn.detect, Yarn)];
+// This order matters since other tools might add workspaces support
+// they need to be checked first so everything isn't set as Yarn
+let managers = [(Pnpm.detect, Pnpm), (Yarn.detect, Yarn)];
 
 let detect_workspace_manager = cwd =>
   managers
   |> List.fold_left(
        (acc, (detect, kind)) => {
-         cwd
-         |> detect
-         |> (
-           fun
-           | Some(root) => {
-               Logs.info(m =>
-                 m("Detected workspace manager: %s", kind |> to_string)
-               );
+         switch (acc) {
+         | Some(_) => acc
+         | None =>
+           cwd
+           |> detect
+           |> (
+             fun
+             | Some(root) => {
+                 Logs.info(m =>
+                   m("Detected workspace manager: %s", kind |> to_string)
+                 );
 
-               Some((kind, root));
-             }
-           | None => acc
-         )
+                 Some((kind, root));
+               }
+             | None => acc
+           )
+         }
        },
        None,
      );
@@ -212,9 +274,11 @@ let detect_workspace_manager = cwd =>
 let find_root_dir = (wsmgr, cwd) =>
   switch (wsmgr) {
   | Yarn => cwd |> Yarn.find_root_dir
+  | Pnpm => cwd |> Pnpm.find_root_dir
   };
 
 let find_workspace_dirs = (wsmgr, cwd) =>
   switch (wsmgr) {
   | Yarn => cwd |> Yarn.find_workspace_dirs
+  | Pnpm => cwd |> Pnpm.find_workspace_dirs
   };
