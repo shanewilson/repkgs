@@ -1,5 +1,4 @@
 Integration Test `list` › Yarn v1
-@yarn/worktree
 @workspace-a/package-a
 @workspace-a/package-b
 @workspace-b/package-a

@@ -1,5 +1,5 @@
 {
-  "name": "@yarn/worktree",
+  "name": "@yarn-v1/worktree",
   "private": true,
   "version": "0.0.0",
   "workspaces": [

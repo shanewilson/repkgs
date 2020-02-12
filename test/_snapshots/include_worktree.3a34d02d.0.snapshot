@@ -1,4 +1,5 @@
-Nested folder › Yarn v2
+--include-worktree › Rush
+@rush/worktree (root)
 @workspace-a/package-a
 @workspace-a/package-b
 @workspace-b/package-a
