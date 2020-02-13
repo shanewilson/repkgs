@@ -7,6 +7,13 @@ let cwd = {
   );
 };
 
+let since = {
+  let doc = "Find packages modified since $(docv)";
+  Cmdliner.Arg.(
+    value & opt(string, "") & info(["since"], ~docv="COMMIT", ~doc)
+  );
+};
+
 let include_worktree = {
   let doc = "Include worktree/root dir.";
   Cmdliner.Arg.(value & flag & info(["include-worktree"], ~doc));
