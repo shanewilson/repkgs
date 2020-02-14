@@ -1,11 +1,11 @@
 (library (name RepkgsCliLibrary) (public_name repkgs--cli.library)
     (modules (:standard \ RepkgsCliLibraryPesyModules))
     (libraries repkgs--cli.library.pesy-modules)
-    (flags -open Bos_setup -open RepkgsCliLibraryPesyModules)
+    (flags -open Bos -open RepkgsCliLibraryPesyModules)
     (preprocess (pps lwt_ppx ppx_protocol_conv)))
 (library (public_name repkgs--cli.library.pesy-modules)
     (name RepkgsCliLibraryPesyModules) (modules RepkgsCliLibraryPesyModules)
-    (libraries bos.setup console.lib dune-glob fpath logs pastel.lib
+    (libraries bos console.lib dune-glob fpath logs pastel.lib
         ppx_protocol_conv_yaml)
     (preprocess (pps lwt_ppx ppx_protocol_conv)))
 (rule
@@ -16,6 +16,6 @@
             \nmodule Logs = Logs;\
             \nmodule Fpath = Fpath;\
             \nmodule Dune_glob = Dune_glob;\
-            \nmodule Bos_setup = Bos_setup;\
+            \nmodule Bos = Bos;\
             \nmodule Protocol_conv_yaml = Protocol_conv_yaml;")))
 (include_subdirs unqualified)

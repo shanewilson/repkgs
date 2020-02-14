@@ -22,6 +22,12 @@ module Workspace = {
   };
 };
 
+type t = {
+  manager: Compat.t,
+  root: Fpath.t,
+  workspaces: list(Workspace.t),
+};
+
 let find_workspaces = cwd => {
   let cwd = cwd |> Fs.normalize_cwd;
 
@@ -34,26 +40,31 @@ let find_workspaces = cwd => {
       | None => raise(Errors.No_workspace_found)
     );
 
-  Compat.find_workspace_dirs(wsmgr, root)
-  |> List.map((kind) =>
-       (
-         {
-           let path = kind |> Compat.Workspace.to_path;
+  {
+    manager: wsmgr,
+    root,
+    workspaces:
+      Compat.find_workspace_dirs(wsmgr, root)
+      |> List.map((kind) =>
+           (
+             {
+               let path = kind |> Compat.Workspace.to_path;
 
-           let manifest =
-             Compat.Workspace.path_to_manifest(
-               path,
-               PackageJson.manifest_file,
-             );
+               let manifest =
+                 Compat.Workspace.path_to_manifest(
+                   path,
+                   PackageJson.manifest_file,
+                 );
 
-           let packageJson =
-             switch (Fs.exists(manifest)) {
-             | Ok(File(p)) => p |> PackageJson.read_parse_manifest
-             | _ => {name: "root", version: None}
-             };
+               let packageJson =
+                 switch (Fs.exists(manifest)) {
+                 | Ok(File(p)) => p |> PackageJson.read_parse_manifest
+                 | _ => {name: "root", version: None}
+                 };
 
-           {kind, name: packageJson.name, packageJson};
-         }: Workspace.t
-       )
-     );
+               {kind, name: packageJson.name, packageJson};
+             }: Workspace.t
+           )
+         ),
+  };
 };

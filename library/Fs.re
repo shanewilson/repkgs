@@ -4,8 +4,8 @@ type path_type =
   | Dne;
 
 let exists = path => {
-  let exists = path |> Bos.OS.Path.exists;
-  let is_dir = path |> Bos.OS.Dir.exists;
+  let exists = path |> OS.Path.exists;
+  let is_dir = path |> OS.Dir.exists;
 
   switch (exists, is_dir) {
   | (Ok(true), Ok(true)) => Ok(Dir(path))
@@ -18,7 +18,7 @@ let exists = path => {
 
 let read = path =>
   path
-  |> Bos.OS.File.read
+  |> OS.File.read
   |> (
     fun
     | Ok(data) => data
@@ -49,7 +49,7 @@ let read_and_parse = (path, ~parser) => {
 };
 
 let get_cwd = () =>
-  switch (Bos.OS.Dir.current()) {
+  switch (OS.Dir.current()) {
   | Ok(cwd) => cwd
   | Error(`Msg(msg)) => raise(Errors.Fs_cwd(msg))
   };
@@ -75,7 +75,7 @@ let rec ls_dir = (path: Fpath.t) =>
   | Ok(File(p)) => [p]
   | Ok(Dir(p)) =>
     p
-    |> Bos.OS.Dir.contents
+    |> OS.Dir.contents
     |> (
       fun
       | Error(`Msg(msg)) => raise(Errors.Fs_error(p, msg))
