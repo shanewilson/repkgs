@@ -70,18 +70,31 @@ let normalize_dir_path = cwd => {
 let normalize_cwd = cwd =>
   Fpath.v(cwd) |> Fpath.append(get_cwd()) |> normalize_dir_path;
 
-let rec ls_dir = (path: Fpath.t) =>
-  switch (path |> exists) {
-  | Ok(File(p)) => [p]
-  | Ok(Dir(p)) =>
-    p
-    |> OS.Dir.contents
-    |> (
-      fun
-      | Error(`Msg(msg)) => raise(Errors.Fs_error(p, msg))
-      | Ok(ls) =>
-        ls |> List.map(seg => Fpath.append(p, seg) |> ls_dir) |> List.flatten
-    )
-  | Ok(Dne) => raise(Errors.Fs_dne(path))
-  | Error(`Msg(msg)) => raise(Errors.Fs_error(path, msg))
-  };
+let ls_dir = cwd =>
+  Bos.OS.Path.fold(
+    ~elements=`Files,
+    ~traverse=
+      `Sat(
+        path => {
+          Ok(
+            !(
+              ["node_modules"]
+              |> List.exists(x => compare(x, path |> Fpath.filename) == 0)
+            ),
+          )
+        },
+      ),
+    (path, acc) => {
+      switch (path |> Fpath.filename) {
+      | "package.json" => [path, ...acc]
+      | _ => acc
+      }
+    },
+    [],
+    [cwd],
+  )
+  |> (
+    fun
+    | Ok(r) => r
+    | Error(`Msg(msg)) => raise(Errors.Fs_error(cwd, msg))
+  );
