@@ -21,17 +21,23 @@ let include_worktree_filter = (ws, ~include_worktree) =>
        }
      );
 
-let since_filter = (ws, ~root, ~since) =>
-  ws
-  |> List.filter((w: Manager.Workspace.t) => {
-       Git.git_tracked(root, ~since)
-       |> List.exists(p =>
-            contains(
-              p |> Fpath.to_string,
-              w.kind |> Compat.Workspace.to_path |> Fpath.to_string,
+let since_filter = (ws, ~root, ~since) => {
+  switch (since) {
+  | "" => ws
+  | _ =>
+    let tracked = Git.git_tracked(root, ~since);
+    ws
+    |> List.filter((w: Manager.Workspace.t) => {
+         tracked
+         |> List.exists(p =>
+              contains(
+                p |> Fpath.to_string,
+                w.kind |> Compat.Workspace.to_path |> Fpath.to_string,
+              )
             )
-          )
-     });
+       });
+  };
+};
 
 let alpha_sort =
   List.fast_sort((a: Manager.Workspace.t, b: Manager.Workspace.t) =>
