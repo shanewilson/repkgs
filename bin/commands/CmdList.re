@@ -1,12 +1,27 @@
 open Cmdliner;
 
 let run =
-    (~cwd, ~include_worktree, ~since, ~since_branch, ~since_latest_tag, ()) => {
+    (
+      ~cwd,
+      ~include_worktree,
+      ~since,
+      ~since_branch,
+      ~since_latest_tag,
+      ~include_patterns,
+      ~exclude_patterns,
+      (),
+    ) => {
   let project = Library.Manager.find_workspaces(cwd);
 
   project.workspaces
   |> Library.Filters.include_worktree_filter(~include_worktree)
-  |> Library.Filters.since_filter(
+  |> Library.Filters.Name.include_matching_packages(
+       ~patterns=include_patterns,
+     )
+  |> Library.Filters.Name.exclude_matching_packages(
+       ~patterns=exclude_patterns,
+     )
+  |> Library.Filters.Since.since_filter(
        ~root=project.root,
        ~since,
        ~since_branch,
@@ -28,8 +43,25 @@ let cmd = {
   let doc = "list workspaces found in the current directory";
 
   let runCommand =
-      (_, cwd, include_worktree, since, since_branch, since_latest_tag) =>
-    run(~cwd, ~include_worktree, ~since, ~since_branch, ~since_latest_tag)
+      (
+        _,
+        cwd,
+        include_worktree,
+        since,
+        since_branch,
+        since_latest_tag,
+        exclude_patterns,
+        include_patterns,
+      ) =>
+    run(
+      ~cwd,
+      ~include_worktree,
+      ~since,
+      ~since_branch,
+      ~since_latest_tag,
+      ~exclude_patterns,
+      ~include_patterns,
+    )
     |> Utils.runCmd;
 
   (
@@ -41,6 +73,8 @@ let cmd = {
       $ Args.Since.since
       $ Args.Since.since_branch
       $ Args.Since.since_latest_tag
+      $ Args.Name.excluded
+      $ Args.Name.included
     ),
     Term.info(
       "list",

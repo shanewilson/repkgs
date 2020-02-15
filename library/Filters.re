@@ -21,32 +21,6 @@ let include_worktree_filter = (ws, ~include_worktree) =>
        }
      );
 
-let find_changed_packages = (ws, ~root, ~since) => {
-  let tracked = Git.find_tracked_files(root, ~since);
-  let changed =
-    ws
-    |> List.filter((w: Manager.Workspace.t) => {
-         tracked
-         |> List.exists(p => contains(p, w.kind |> Compat.Workspace.to_path))
-       });
-
-  Logs.info(m =>
-    m("Found %i packages changed since: %s", changed |> List.length, since)
-  );
-
-  changed;
-};
-
-let since_filter = (ws, ~root, ~since, ~since_branch, ~since_latest_tag) =>
-  switch (since, since_branch, since_latest_tag) {
-  | ("", "", false) => ws
-  | (_, _, true) =>
-    let tag = Git.find_closest_tag(root);
-    find_changed_packages(ws, ~root, ~since=tag);
-  | (range, "", _) => find_changed_packages(ws, ~root, ~since=range)
-  | (_, branch, _) => find_changed_packages(ws, ~root, ~since=branch ++ "..")
-  };
-
 let alpha_sort =
   List.fast_sort((a: Manager.Workspace.t, b: Manager.Workspace.t) =>
     String.compare(
@@ -54,3 +28,78 @@ let alpha_sort =
       b.kind |> Compat.Workspace.to_path |> Fpath.to_string,
     )
   );
+module Since = {
+  let find_changed_packages = (ws, ~root, ~since) => {
+    let tracked = Git.find_tracked_files(root, ~since);
+    let changed =
+      ws
+      |> List.filter((w: Manager.Workspace.t) => {
+           tracked
+           |> List.exists(p =>
+                contains(p, w.kind |> Compat.Workspace.to_path)
+              )
+         });
+
+    Logs.info(m =>
+      m("Found %i packages changed since: %s", changed |> List.length, since)
+    );
+
+    changed;
+  };
+
+  let since_filter = (ws, ~root, ~since, ~since_branch, ~since_latest_tag) =>
+    switch (since, since_branch, since_latest_tag) {
+    | ("", "", false) => ws
+    | (_, _, true) =>
+      let tag = Git.find_closest_tag(root);
+      find_changed_packages(ws, ~root, ~since=tag);
+    | (range, "", _) => find_changed_packages(ws, ~root, ~since=range)
+    | (_, branch, _) =>
+      find_changed_packages(ws, ~root, ~since=branch ++ "..")
+    };
+};
+
+module Name = {
+  let include_matching_packages = (ws, ~patterns) =>
+    switch (patterns) {
+    | [] => ws
+    | ps =>
+      let match =
+        ws
+        |> List.filter((w: Manager.Workspace.t) => {
+             ps
+             |> List.exists(p => {
+                  Console.log(w.name);
+                  Console.log(p);
+                  Console.log(Glob.test(Glob.of_string(p), w.name));
+                  Glob.test(Glob.of_string(p), w.name);
+                })
+           });
+
+      Logs.info(m =>
+        m("Found %i packages matching patterns", match |> List.length)
+      );
+
+      match;
+    };
+
+  let exclude_matching_packages = (ws, ~patterns) =>
+    switch (patterns) {
+    | [] => ws
+    | ps =>
+      let match =
+        ws
+        |> List.filter((w: Manager.Workspace.t) => {
+             !(
+               patterns
+               |> List.exists(p => Glob.test(Glob.of_string(p), w.name))
+             )
+           });
+
+      Logs.info(m =>
+        m("Ignoring %i packages matching patterns", match |> List.length)
+      );
+
+      match;
+    };
+};
