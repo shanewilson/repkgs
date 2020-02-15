@@ -1,11 +1,17 @@
 open Cmdliner;
 
-let run = (~cwd, ~include_worktree, ~since, ()) => {
+let run =
+    (~cwd, ~include_worktree, ~since, ~since_branch, ~since_latest_tag, ()) => {
   let project = Library.Manager.find_workspaces(cwd);
 
   project.workspaces
   |> Library.Filters.include_worktree_filter(~include_worktree)
-  |> Library.Filters.since_filter(~root=project.root, ~since)
+  |> Library.Filters.since_filter(
+       ~root=project.root,
+       ~since,
+       ~since_branch,
+       ~since_latest_tag,
+     )
   |> Library.Filters.alpha_sort
   |> List.iter((x: Library.Manager.Workspace.t) =>
        switch (x.kind) {
@@ -21,8 +27,10 @@ let run = (~cwd, ~include_worktree, ~since, ()) => {
 let cmd = {
   let doc = "list workspaces found in the current directory";
 
-  let runCommand = (_, cwd, include_worktree, since) =>
-    run(~cwd, ~include_worktree, ~since) |> Utils.runCmd;
+  let runCommand =
+      (_, cwd, include_worktree, since, since_branch, since_latest_tag) =>
+    run(~cwd, ~include_worktree, ~since, ~since_branch, ~since_latest_tag)
+    |> Utils.runCmd;
 
   (
     Term.(
@@ -30,7 +38,9 @@ let cmd = {
       $ Logger.args
       $ Args.cwd
       $ Args.include_worktree
-      $ Args.since
+      $ Args.Since.since
+      $ Args.Since.since_branch
+      $ Args.Since.since_latest_tag
     ),
     Term.info(
       "list",
