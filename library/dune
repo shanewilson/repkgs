@@ -5,8 +5,8 @@
     (preprocess (pps lwt_ppx ppx_protocol_conv)))
 (library (public_name repkgs--cli.library.pesy-modules)
     (name RepkgsCliLibraryPesyModules) (modules RepkgsCliLibraryPesyModules)
-    (libraries bos console.lib dune-glob fpath logs pastel.lib
-        ppx_protocol_conv_yaml)
+    (libraries bos console.lib fpath logs pastel.lib ppx_protocol_conv_yaml
+        re)
     (preprocess (pps lwt_ppx ppx_protocol_conv)))
 (rule
     (with-stdout-to RepkgsCliLibraryPesyModules.re
@@ -15,7 +15,7 @@
             \nmodule Pastel = Pastel;\
             \nmodule Logs = Logs;\
             \nmodule Fpath = Fpath;\
-            \nmodule Dune_glob = Dune_glob;\
+            \nmodule Re = Re;\
             \nmodule Bos = Bos;\
             \nmodule Protocol_conv_yaml = Protocol_conv_yaml;")))
 (include_subdirs unqualified)

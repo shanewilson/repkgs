@@ -15,9 +15,13 @@ module Workspace = {
 
   let normalize_patterns = (cwd, patterns) =>
     patterns
-    |> List.map(glob =>
-         Fpath.add_seg(Fpath.append(cwd, Fpath.v(glob)), "package.json")
-       );
+    |> List.map(pattern => {
+         let glob = Fpath.append(cwd, Fpath.v(pattern));
+         switch (glob |> Fpath.to_dir_path |> Fpath.basename) {
+         | "**" => glob
+         | _ => Fpath.add_seg(glob, "package.json")
+         };
+       });
 
   let check_workspace_type =
       (path, ~manifest_file, ~read_parse_manifest, ~get_workspace_patterns) =>
@@ -37,14 +41,9 @@ module Workspace = {
 
   let filter_ls_dir = (patterns, dirs) =>
     dirs
-    |> List.filter(pth =>
+    |> List.filter(s =>
          patterns
-         |> List.exists(pattern =>
-              Glob.test(
-                Glob.of_string(pattern |> Fpath.to_string),
-                pth |> Fpath.to_string,
-              )
-            )
+         |> List.exists(pattern => Glob.glob(pattern) |> Glob.match(~s))
        );
 
   let rec get_dirs = (cwd, patterns, ~nested=false, ~check_workspace_type, ()) => {
@@ -194,24 +193,22 @@ module Pnpm = {
   };
 };
 
-
 module Rush = {
   open Protocol_conv_yaml;
   [@deriving protocol(~driver=(module Yaml))]
   type project = {
     packageName: string,
-    projectFolder: string
+    projectFolder: string,
   };
   [@deriving protocol(~driver=(module Yaml))]
-  type t = {
-    projects: list(project),
-  };
+  type t = {projects: list(project)};
 
   let manifest_file = Fpath.v("rush.json");
 
   let read_parse_manifest = Fs.read_and_parse(~parser=of_yaml);
 
-  let get_workspace_patterns = manifest => Some(manifest.projects |> List.map(x => x.projectFolder));
+  let get_workspace_patterns = manifest =>
+    Some(manifest.projects |> List.map(x => x.projectFolder));
 
   let check_workspace_type = path =>
     path
@@ -234,7 +231,7 @@ module Rush = {
 };
 
 type t =
-| Rush
+  | Rush
   | Pnpm
   | Yarn;
 
@@ -246,7 +243,11 @@ let to_string =
 
 // This order matters since other tools might add workspaces support
 // they need to be checked first so everything isn't set as Yarn
-let managers = [(Pnpm.detect, Pnpm), (Rush.detect, Rush),(Yarn.detect, Yarn)];
+let managers = [
+  (Pnpm.detect, Pnpm),
+  (Rush.detect, Rush),
+  (Yarn.detect, Yarn),
+];
 
 let detect_workspace_manager = cwd =>
   managers
