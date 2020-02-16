@@ -1,4 +1,4 @@
 packages:
-    - workspace-a/packages/*
+    - workspace-a/**
     - workspace-b/package-a
     - workspace-b/package-b
