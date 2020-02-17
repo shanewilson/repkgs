@@ -1,12 +1,14 @@
 open TestFramework;
 
-let dirs = [
-  "workspace/package.json",
-  "workspace/package-a/package.json",
-  "workspace/packages/package-b/package.json",
-  "workspace/long/path/to/workspaces/package-b/package.json",
-  "workspace/long/path/to/workspaces/path/to/package-b/package.json",
-];
+let dirs =
+  [
+    "workspace/package.json",
+    "workspace/package-a/package.json",
+    "workspace/packages/package-b/package.json",
+    "workspace/long/path/to/workspaces/package-b/package.json",
+    "workspace/long/path/to/workspaces/path/to/package-b/package.json",
+  ]
+  |> List.map(Fpath.v);
 
 describe("Glob", ({test, _}) => {
   test("*", ({expect}) => {
@@ -16,9 +18,9 @@ describe("Glob", ({test, _}) => {
            ~patterns=[Fpath.v("workspace/*/package.json")],
          ),
     ).
-      toEqual([
-      "workspace/package-a/package.json",
-    ])
+      toEqual(
+      ["workspace/package-a/package.json"] |> List.map(Fpath.v),
+    )
   });
   test("**", ({expect}) => {
     expect.list(
@@ -27,12 +29,15 @@ describe("Glob", ({test, _}) => {
            ~patterns=[Fpath.v("workspace/**/package.json")],
          ),
     ).
-      toEqual([
-      "workspace/package-a/package.json",
-      "workspace/packages/package-b/package.json",
-      "workspace/long/path/to/workspaces/package-b/package.json",
-      "workspace/long/path/to/workspaces/path/to/package-b/package.json",
-    ])
+      toEqual(
+      [
+        "workspace/package-a/package.json",
+        "workspace/packages/package-b/package.json",
+        "workspace/long/path/to/workspaces/package-b/package.json",
+        "workspace/long/path/to/workspaces/path/to/package-b/package.json",
+      ]
+      |> List.map(Fpath.v),
+    )
   });
   test("**/*", ({expect}) => {
     expect.list(
@@ -41,9 +46,10 @@ describe("Glob", ({test, _}) => {
            ~patterns=[Fpath.v("workspace/**/workspaces/*/package.json")],
          ),
     ).
-      toEqual([
-      "workspace/long/path/to/workspaces/package-b/package.json",
-    ])
+      toEqual(
+      ["workspace/long/path/to/workspaces/package-b/package.json"]
+      |> List.map(Fpath.v),
+    )
   });
   test("**/**", ({expect}) => {
     expect.list(
@@ -52,10 +58,13 @@ describe("Glob", ({test, _}) => {
            ~patterns=[Fpath.v("workspace/**/workspaces/**/package.json")],
          ),
     ).
-      toEqual([
-      "workspace/long/path/to/workspaces/package-b/package.json",
-      "workspace/long/path/to/workspaces/path/to/package-b/package.json",
-    ])
+      toEqual(
+      [
+        "workspace/long/path/to/workspaces/package-b/package.json",
+        "workspace/long/path/to/workspaces/path/to/package-b/package.json",
+      ]
+      |> List.map(Fpath.v),
+    )
   });
 
   test("multiple patterns", ({expect}) => {
@@ -68,10 +77,13 @@ describe("Glob", ({test, _}) => {
            ],
          ),
     ).
-      toEqual([
-      "workspace/package-a/package.json",
-      "workspace/long/path/to/workspaces/package-b/package.json",
-      "workspace/long/path/to/workspaces/path/to/package-b/package.json",
-    ])
+      toEqual(
+      [
+        "workspace/package-a/package.json",
+        "workspace/long/path/to/workspaces/package-b/package.json",
+        "workspace/long/path/to/workspaces/path/to/package-b/package.json",
+      ]
+      |> List.map(Fpath.v),
+    )
   });
 });

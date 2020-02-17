@@ -1,9 +1,5 @@
 open Re.Glob;
 
-let match = (re, ~s) => Re.execp(Re.compile(re), s |> Fpath.to_string);
-
-let glob = path => path |> Fpath.to_string |> Re.Glob.glob;
-
 let create_globs_seq = pattern => {
   pattern
   |> Fpath.segs
@@ -41,7 +37,10 @@ let create_globs_seq = pattern => {
 
 let match_patterns = (~path) =>
   List.exists(pattern =>
-    Re.execp(Re.seq(create_globs_seq(pattern)) |> Re.compile, path)
+    Re.execp(
+      Re.seq(create_globs_seq(pattern)) |> Re.compile,
+      path |> Fpath.to_string,
+    )
   );
 
 let matches = (~patterns) =>

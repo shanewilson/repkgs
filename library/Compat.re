@@ -39,15 +39,8 @@ module Workspace = {
     | _ => Ok(Package(path))
     };
 
-  let filter_ls_dir = (patterns, dirs) =>
-    dirs
-    |> List.filter(s =>
-         patterns
-         |> List.exists(pattern => Glob.glob(pattern) |> Glob.match(~s))
-       );
-
   let rec get_dirs = (cwd, patterns, ~nested=false, ~check_workspace_type, ()) => {
-    let dirs = cwd |> Fs.ls_dir |> filter_ls_dir(patterns);
+    let dirs = cwd |> Fs.ls_dir |> Glob.matches(~patterns);
 
     dirs
     |> List.map(
