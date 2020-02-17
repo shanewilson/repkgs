@@ -13,15 +13,11 @@ module Workspace = {
   let path_to_manifest = (path, manifest_file) =>
     manifest_file |> Fpath.append(path |> Fs.normalize_dir_path);
 
-  let normalize_patterns = (cwd, patterns) =>
-    patterns
-    |> List.map(pattern => {
-         let glob = Fpath.append(cwd, Fpath.v(pattern));
-         switch (glob |> Fpath.to_dir_path |> Fpath.basename) {
-         | "**" => glob
-         | _ => Fpath.add_seg(glob, "package.json")
-         };
-       });
+  let normalize_patterns = (~path) =>
+    List.map(pattern => {
+      let glob = Fpath.append(path, Fpath.v(pattern));
+      Fpath.add_seg(glob, "package.json");
+    });
 
   let check_workspace_type =
       (path, ~manifest_file, ~read_parse_manifest, ~get_workspace_patterns) =>
@@ -33,23 +29,21 @@ module Workspace = {
       |> (
         fun
         | Some(patterns) =>
-          Ok(WorkTree(path, patterns |> normalize_patterns(path)))
+          Ok(WorkTree(path, patterns |> normalize_patterns(~path)))
         | None => Ok(Package(path))
       )
     | _ => Ok(Package(path))
     };
 
-  let rec get_dirs = (cwd, patterns, ~nested=false, ~check_workspace_type, ()) => {
+  let rec get_dirs = (cwd, ~patterns, ~nested, ~check_workspace_type) => {
     let dirs = cwd |> Fs.ls_dir |> Glob.matches(~patterns);
 
     dirs
-    |> List.map(
-         find_matching_dirs(_, ~nested=true, ~check_workspace_type, ()),
-       )
+    |> List.map(find_matching_dirs(~nested=true, ~check_workspace_type))
     |> List.flatten
     |> List.cons(nested ? WorkTree(cwd, patterns) : Root(cwd, patterns));
   }
-  and find_matching_dirs = (cwd, ~nested=false, ~check_workspace_type, ()) => {
+  and find_matching_dirs = (cwd, ~nested, ~check_workspace_type) => {
     let cwd = cwd |> Fs.normalize_dir_path;
 
     cwd
@@ -57,7 +51,7 @@ module Workspace = {
     |> (
       fun
       | Ok(WorkTree(path, patterns)) =>
-        get_dirs(path, patterns, ~nested, ~check_workspace_type, ())
+        path |> get_dirs(~patterns, ~nested, ~check_workspace_type)
       | _ => [Package(cwd)]
     );
   };
@@ -132,16 +126,15 @@ module Yarn = {
 
   let get_workspace_patterns = manifest => manifest.workspaces;
 
-  let check_workspace_type = path =>
-    path
-    |> Workspace.check_workspace_type(
-         ~manifest_file,
-         ~read_parse_manifest,
-         ~get_workspace_patterns,
-       );
+  let check_workspace_type =
+    Workspace.check_workspace_type(
+      ~manifest_file,
+      ~read_parse_manifest,
+      ~get_workspace_patterns,
+    );
 
-  let find_workspace_dirs = cwd =>
-    Workspace.find_matching_dirs(cwd, ~check_workspace_type, ());
+  let find_workspace_dirs =
+    Workspace.find_matching_dirs(~nested=false, ~check_workspace_type);
 
   let rec find_root_dir = Workspace.find_root_dir(~check_workspace_type);
 
@@ -166,16 +159,15 @@ module Pnpm = {
 
   let get_workspace_patterns = manifest => manifest.packages;
 
-  let check_workspace_type = path =>
-    path
-    |> Workspace.check_workspace_type(
-         ~manifest_file,
-         ~read_parse_manifest,
-         ~get_workspace_patterns,
-       );
+  let check_workspace_type =
+    Workspace.check_workspace_type(
+      ~manifest_file,
+      ~read_parse_manifest,
+      ~get_workspace_patterns,
+    );
 
-  let find_workspace_dirs = cwd =>
-    Workspace.find_matching_dirs(cwd, ~check_workspace_type, ());
+  let find_workspace_dirs =
+    Workspace.find_matching_dirs(~nested=false, ~check_workspace_type);
 
   let rec find_root_dir = Workspace.find_root_dir(~check_workspace_type);
 
@@ -203,16 +195,15 @@ module Rush = {
   let get_workspace_patterns = manifest =>
     Some(manifest.projects |> List.map(x => x.projectFolder));
 
-  let check_workspace_type = path =>
-    path
-    |> Workspace.check_workspace_type(
-         ~manifest_file,
-         ~read_parse_manifest,
-         ~get_workspace_patterns,
-       );
+  let check_workspace_type =
+    Workspace.check_workspace_type(
+      ~manifest_file,
+      ~read_parse_manifest,
+      ~get_workspace_patterns,
+    );
 
-  let find_workspace_dirs = cwd =>
-    Workspace.find_matching_dirs(cwd, ~check_workspace_type, ());
+  let find_workspace_dirs =
+    Workspace.find_matching_dirs(~nested=false, ~check_workspace_type);
 
   let rec find_root_dir = Workspace.find_root_dir(~check_workspace_type);
 
@@ -242,30 +233,29 @@ let managers = [
   (Yarn.detect, Yarn),
 ];
 
-let detect_workspace_manager = cwd =>
-  managers
-  |> List.fold_left(
-       (acc, (detect, kind)) => {
-         switch (acc) {
-         | Some(_) => acc
-         | None =>
-           cwd
-           |> detect
-           |> (
-             fun
-             | Some(root) => {
-                 Logs.info(m =>
-                   m("Detected workspace manager: %s", kind |> to_string)
-                 );
+let detect_workspace_manager = (~cwd) =>
+  List.fold_left(
+    (acc, (detect, kind)) => {
+      switch (acc) {
+      | Some(_) => acc
+      | None =>
+        cwd
+        |> detect
+        |> (
+          fun
+          | Some(root) => {
+              Logs.info(m =>
+                m("Detected workspace manager: %s", kind |> to_string)
+              );
 
-                 Some((kind, root));
-               }
-             | None => acc
-           )
-         }
-       },
-       None,
-     );
+              Some((kind, root));
+            }
+          | None => acc
+        )
+      }
+    },
+    None,
+  );
 
 let find_root_dir = (wsmgr, cwd) =>
   switch (wsmgr) {

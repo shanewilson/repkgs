@@ -32,8 +32,8 @@ let find_workspaces = cwd => {
   let cwd = cwd |> Fs.normalize_cwd;
 
   let (wsmgr, root) =
-    cwd
-    |> Compat.detect_workspace_manager
+    Compat.managers
+    |> Compat.detect_workspace_manager(~cwd)
     |> (
       fun
       | Some((w, d)) => (w, d)
