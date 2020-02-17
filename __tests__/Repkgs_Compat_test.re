@@ -6,7 +6,7 @@ open Repkgs.Compat;
 let fixturesDir = "__fixtures__";
 
 let patterns = [|
-  "workspace-a/packages/*",
+  "workspace-a/**",
   "workspace-b/package-a",
   "workspace-b/package-b",
 |];
