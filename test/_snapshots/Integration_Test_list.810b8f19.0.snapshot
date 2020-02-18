@@ -1,4 +1,4 @@
---include-worktree › Yarn v2
+Integration Test `list` › --include-worktree
 @yarn-v2/worktree (root)
 @workspace-a/worktree (worktree)
 @workspace-a/package-a

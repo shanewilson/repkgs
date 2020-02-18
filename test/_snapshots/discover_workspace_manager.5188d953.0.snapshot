@@ -1,4 +1,4 @@
-Integration Test `list` › Yarn v2
+discover workspace manager › Yarn v1
 @workspace-a/package-a
 @workspace-a/package-b
 @workspace-b/package-a

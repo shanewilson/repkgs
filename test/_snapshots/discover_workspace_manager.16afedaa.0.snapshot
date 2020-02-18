@@ -1,5 +1,4 @@
---include-worktree › Pnpm
-@pnpm/worktree (root)
+discover workspace manager › Pnpm
 @workspace-a/package-a
 @workspace-a/package-b
 @workspace-b/package-a

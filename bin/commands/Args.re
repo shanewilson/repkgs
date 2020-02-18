@@ -34,6 +34,28 @@ module Since = {
   };
 };
 
+module Name = {
+  let docs = "PACKAGE NAME FILTERS";
+
+  let included = {
+    let doc = "Include all packages whose name matches pattern $(docv)";
+    Cmdliner.Arg.(
+      value
+      & opt_all(string, [])
+      & info(["include"], ~docv="GLOB", ~doc, ~docs)
+    );
+  };
+
+  let excluded = {
+    let doc = "Exclude any package whose name matches pattern $(docv)";
+    Cmdliner.Arg.(
+      value
+      & opt_all(string, [])
+      & info(["exclude"], ~docv="GLOB", ~doc, ~docs)
+    );
+  };
+};
+
 let include_worktree = {
   let doc = "Include worktree/root dir.";
   Cmdliner.Arg.(value & flag & info(["include-worktree"], ~doc));

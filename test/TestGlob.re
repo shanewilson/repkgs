@@ -1,89 +1,203 @@
 open TestFramework;
 
-let dirs =
-  [
-    "workspace/package.json",
-    "workspace/package-a/package.json",
-    "workspace/packages/package-b/package.json",
-    "workspace/long/path/to/workspaces/package-b/package.json",
-    "workspace/long/path/to/workspaces/path/to/package-b/package.json",
-  ]
-  |> List.map(Fpath.v);
-
 describe("Glob", ({test, _}) => {
-  test("*", ({expect}) => {
-    expect.list(
-      dirs
-      |> Library.Glob.matches(
-           ~patterns=[Fpath.v("workspace/*/package.json")],
-         ),
-    ).
-      toEqual(
-      ["workspace/package-a/package.json"] |> List.map(Fpath.v),
-    )
+  describe("String", ({test, _}) => {
+    let names = [
+      "@scope-a/name-a",
+      "@scope-a/name-b",
+      "@scope-b/name-a",
+      "@scope-b/name-b",
+      "graphql",
+      "graphql-test",
+      "graphql-utils",
+      "npm-test",
+    ];
+
+    test("exact", ({expect}) => {
+      expect.list(
+        names |> Library.Glob.String.matches(~patterns=["graphql"]),
+      ).
+        toEqual([
+        "graphql",
+      ])
+    });
+    test("prefix*", ({expect}) => {
+      expect.list(
+        names |> Library.Glob.String.matches(~patterns=["graphql*"]),
+      ).
+        toEqual([
+        "graphql",
+        "graphql-test",
+        "graphql-utils",
+      ])
+    });
+    test("*suffix", ({expect}) => {
+      expect.list(names |> Library.Glob.String.matches(~patterns=["*test"])).
+        toEqual([
+        "graphql-test",
+        "npm-test",
+      ])
+    });
+    test("@scope/*", ({expect}) => {
+      expect.list(
+        names |> Library.Glob.String.matches(~patterns=["@scope-a/*"]),
+      ).
+        toEqual([
+        "@scope-a/name-a",
+        "@scope-a/name-b",
+      ])
+    });
+    test("@scope**", ({expect}) => {
+      expect.list(
+        names |> Library.Glob.String.matches(~patterns=["@scope-a**"]),
+      ).
+        toEqual([
+        "@scope-a/name-a",
+        "@scope-a/name-b",
+      ])
+    });
+    test("*/scoped", ({expect}) => {
+      expect.list(
+        names |> Library.Glob.String.matches(~patterns=["*/name-a"]),
+      ).
+        toEqual([
+        "@scope-a/name-a",
+        "@scope-b/name-a",
+      ])
+    });
+    test("**scoped", ({expect}) => {
+      expect.list(
+        names |> Library.Glob.String.matches(~patterns=["**name-a"]),
+      ).
+        toEqual([
+        "@scope-a/name-a",
+        "@scope-b/name-a",
+      ])
+    });
+    test("{expand}", ({expect}) => {
+      expect.list(
+        names
+        |> Library.Glob.String.matches(~patterns=["@scope-a/name-{a,b}"]),
+      ).
+        toEqual([
+        "@scope-a/name-a",
+        "@scope-a/name-b",
+      ])
+    });
   });
-  test("**", ({expect}) => {
-    expect.list(
-      dirs
-      |> Library.Glob.matches(
-           ~patterns=[Fpath.v("workspace/**/package.json")],
-         ),
-    ).
-      toEqual(
+  describe("Path", ({test, _}) => {
+    let dirs =
       [
+        "workspace/package.json",
         "workspace/package-a/package.json",
+        "workspace/packages/package-a/package.json",
         "workspace/packages/package-b/package.json",
         "workspace/long/path/to/workspaces/package-b/package.json",
         "workspace/long/path/to/workspaces/path/to/package-b/package.json",
       ]
-      |> List.map(Fpath.v),
-    )
-  });
-  test("**/*", ({expect}) => {
-    expect.list(
-      dirs
-      |> Library.Glob.matches(
-           ~patterns=[Fpath.v("workspace/**/workspaces/*/package.json")],
-         ),
-    ).
-      toEqual(
-      ["workspace/long/path/to/workspaces/package-b/package.json"]
-      |> List.map(Fpath.v),
-    )
-  });
-  test("**/**", ({expect}) => {
-    expect.list(
-      dirs
-      |> Library.Glob.matches(
-           ~patterns=[Fpath.v("workspace/**/workspaces/**/package.json")],
-         ),
-    ).
-      toEqual(
-      [
-        "workspace/long/path/to/workspaces/package-b/package.json",
-        "workspace/long/path/to/workspaces/path/to/package-b/package.json",
-      ]
-      |> List.map(Fpath.v),
-    )
-  });
+      |> List.map(Fpath.v);
+    test("*", ({expect}) => {
+      expect.list(
+        dirs
+        |> Library.Glob.Path.matches(~patterns=["workspace/*/package.json"]),
+      ).
+        toEqual(
+        ["workspace/package-a/package.json"] |> List.map(Fpath.v),
+      )
+    });
+    test("**", ({expect}) => {
+      expect.list(
+        dirs
+        |> Library.Glob.Path.matches(~patterns=["workspace/**/package.json"]),
+      ).
+        toEqual(
+        [
+          "workspace/package-a/package.json",
+          "workspace/packages/package-a/package.json",
+          "workspace/packages/package-b/package.json",
+          "workspace/long/path/to/workspaces/package-b/package.json",
+          "workspace/long/path/to/workspaces/path/to/package-b/package.json",
+        ]
+        |> List.map(Fpath.v),
+      )
+    });
+    test("**/*", ({expect}) => {
+      expect.list(
+        dirs
+        |> Library.Glob.Path.matches(
+             ~patterns=["workspace/**/workspaces/*/package.json"],
+           ),
+      ).
+        toEqual(
+        ["workspace/long/path/to/workspaces/package-b/package.json"]
+        |> List.map(Fpath.v),
+      )
+    });
+    test("*/**", ({expect}) => {
+      expect.list(
+        dirs
+        |> Library.Glob.Path.matches(
+             ~patterns=["workspace/*/path/**/package.json"],
+           ),
+      ).
+        toEqual(
+        [
+          "workspace/long/path/to/workspaces/package-b/package.json",
+          "workspace/long/path/to/workspaces/path/to/package-b/package.json",
+        ]
+        |> List.map(Fpath.v),
+      )
+    });
+    test("**/**", ({expect}) => {
+      expect.list(
+        dirs
+        |> Library.Glob.Path.matches(
+             ~patterns=["workspace/**/workspaces/**/package.json"],
+           ),
+      ).
+        toEqual(
+        [
+          "workspace/long/path/to/workspaces/package-b/package.json",
+          "workspace/long/path/to/workspaces/path/to/package-b/package.json",
+        ]
+        |> List.map(Fpath.v),
+      )
+    });
 
-  test("multiple patterns", ({expect}) => {
-    expect.list(
-      dirs
-      |> Library.Glob.matches(
-           ~patterns=[
-             Fpath.v("workspace/**/workspaces/**/package.json"),
-             Fpath.v("workspace/*/package.json"),
-           ],
-         ),
-    ).
-      toEqual(
-      [
-        "workspace/package-a/package.json",
-        "workspace/long/path/to/workspaces/package-b/package.json",
-        "workspace/long/path/to/workspaces/path/to/package-b/package.json",
-      ]
-      |> List.map(Fpath.v),
-    )
+    test("multiple patterns", ({expect}) => {
+      expect.list(
+        dirs
+        |> Library.Glob.Path.matches(
+             ~patterns=[
+               "workspace/**/workspaces/**/package.json",
+               "workspace/*/package.json",
+             ],
+           ),
+      ).
+        toEqual(
+        [
+          "workspace/package-a/package.json",
+          "workspace/long/path/to/workspaces/package-b/package.json",
+          "workspace/long/path/to/workspaces/path/to/package-b/package.json",
+        ]
+        |> List.map(Fpath.v),
+      )
+    });
+
+    test("{expand}", ({expect}) => {
+      expect.list(
+        dirs
+        |> Library.Glob.Path.matches(
+             ~patterns=["workspace/packages/package-{a,b}/package.json"],
+           ),
+      ).
+        toEqual(
+        [
+          "workspace/packages/package-a/package.json",
+          "workspace/packages/package-b/package.json",
+        ]
+        |> List.map(Fpath.v),
+      )
+    });
   });
 });

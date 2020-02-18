@@ -1,6 +1,5 @@
-Integration Test `list` › Rush
+Integration Test `list` › --include --include
 @workspace-a/package-a
 @workspace-a/package-b
 @workspace-b/package-a
-@workspace-b/package-b
 
