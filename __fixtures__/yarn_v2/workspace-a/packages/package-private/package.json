@@ -1,0 +1,5 @@
+{
+  "name": "@workspace-a/package-private",
+  "private": true,
+  "version": "1.0.0"
+}

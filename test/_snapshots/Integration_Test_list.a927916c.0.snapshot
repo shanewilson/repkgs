@@ -1,0 +1,7 @@
+Integration Test `list` › --include-private
+@workspace-a/package-a
+@workspace-a/package-b
+@workspace-a/package-private (private)
+@workspace-b/package-a
+@workspace-b/package-b
+

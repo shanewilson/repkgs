@@ -11,13 +11,15 @@ let contains = (s1, s2) => {
   };
 };
 
-let include_worktree_filter = (ws, ~include_worktree) =>
+let include_filter = (ws, ~include_worktree, ~include_private) =>
   ws
   |> List.filter((pkg: Manager.Workspace.t) =>
-       switch (include_worktree, pkg.kind) {
-       | (true, _)
-       | (_, Package(_)) => true
-       | (false, _) => false
+       switch (include_worktree, include_private, pkg.kind) {
+       | (true, _, Root(_))
+       | (true, _, WorkTree(_)) => true
+       | (_, true, PrivatePackage(_)) => true
+       | (_, _, Package(_)) => true
+       | (_, _, _) => false
        }
      );
 

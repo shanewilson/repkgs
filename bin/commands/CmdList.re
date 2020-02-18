@@ -4,6 +4,7 @@ let run =
     (
       ~cwd,
       ~include_worktree,
+      ~include_private,
       ~since,
       ~since_branch,
       ~since_latest_tag,
@@ -16,7 +17,7 @@ let run =
   let project = Library.Manager.find_workspaces(cwd);
 
   project.workspaces
-  |> Library.Filters.include_worktree_filter(~include_worktree)
+  |> Library.Filters.include_filter(~include_worktree, ~include_private)
   |> Library.Filters.Name.include_matching_packages(
        ~patterns=include_patterns,
      )
@@ -36,6 +37,7 @@ let run =
        switch (x.kind) {
        | Root(_) => Logs.app(m => m("%s (root)", x.name))
        | WorkTree(_) => Logs.app(m => m("%s (worktree)", x.name))
+       | PrivatePackage(_) => Logs.app(m => m("%s (private)", x.name))
        | Package(_) => Logs.app(m => m("%s", x.name))
        }
      );
@@ -51,6 +53,7 @@ let cmd = {
         _,
         cwd,
         include_worktree,
+        include_private,
         since,
         since_branch,
         since_latest_tag,
@@ -62,6 +65,7 @@ let cmd = {
     run(
       ~cwd,
       ~include_worktree,
+      ~include_private,
       ~since,
       ~since_branch,
       ~since_latest_tag,
@@ -77,7 +81,8 @@ let cmd = {
       const(runCommand)
       $ Logger.args
       $ Args.cwd
-      $ Args.include_worktree
+      $ Args.Include.include_worktree
+      $ Args.Include.include_private
       $ Args.Since.since
       $ Args.Since.since_branch
       $ Args.Since.since_latest_tag
