@@ -9,6 +9,8 @@ let run =
       ~since_latest_tag,
       ~include_patterns,
       ~exclude_patterns,
+      ~only_fs_patterns,
+      ~ignore_fs_patterns,
       (),
     ) => {
   let project = Library.Manager.find_workspaces(cwd);
@@ -27,6 +29,8 @@ let run =
        ~since_branch,
        ~since_latest_tag,
      )
+  |> Library.Filters.Fs.only(~patterns=only_fs_patterns)
+  |> Library.Filters.Fs.ignore(~patterns=ignore_fs_patterns)
   |> Library.Filters.alpha_sort
   |> List.iter((x: Library.Manager.Workspace.t) =>
        switch (x.kind) {
@@ -52,6 +56,8 @@ let cmd = {
         since_latest_tag,
         exclude_patterns,
         include_patterns,
+        only_fs_patterns,
+        ignore_fs_patterns,
       ) =>
     run(
       ~cwd,
@@ -61,6 +67,8 @@ let cmd = {
       ~since_latest_tag,
       ~exclude_patterns,
       ~include_patterns,
+      ~only_fs_patterns,
+      ~ignore_fs_patterns,
     )
     |> Utils.runCmd;
 
@@ -75,6 +83,8 @@ let cmd = {
       $ Args.Since.since_latest_tag
       $ Args.Name.excluded
       $ Args.Name.included
+      $ Args.Fs.only
+      $ Args.Fs.ignore
     ),
     Term.info(
       "list",

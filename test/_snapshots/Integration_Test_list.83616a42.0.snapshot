@@ -1,0 +1,4 @@
+Integration Test `list` › --only-fs
+@workspace-a/package-a
+@workspace-a/package-b
+

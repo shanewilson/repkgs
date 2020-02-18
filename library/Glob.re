@@ -25,7 +25,7 @@ module Path = {
            switch (x) {
            | "**" => (
                [
-                 glob("/**/", ~pathname=false),
+                 glob("/**", ~pathname=false),
                  glob(temp, ~pathname=true),
                  ...patterns,
                ],
