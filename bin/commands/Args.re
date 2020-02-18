@@ -77,7 +77,14 @@ module Fs = {
   };
 };
 
-let include_worktree = {
-  let doc = "Include worktree/root dir.";
-  Cmdliner.Arg.(value & flag & info(["include-worktree"], ~doc));
+module Include = {
+  let include_worktree = {
+    let doc = "Include worktree/root dir.";
+    Cmdliner.Arg.(value & flag & info(["include-worktree"], ~doc));
+  };
+
+  let include_private = {
+    let doc = "Include private packages.";
+    Cmdliner.Arg.(value & flag & info(["include-private"], ~doc));
+  };
 };

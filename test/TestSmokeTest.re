@@ -84,6 +84,29 @@ describe("Integration Test `list`", ({test, _}) => {
     expect.string(ws).toMatchSnapshot();
   });
 
+  test("--include-private", ({expect}) => {
+    let ws =
+      TestUtils.run([|
+        "list",
+        "--cwd",
+        "__fixtures__/yarn_v2",
+        "--include-private",
+      |]);
+    expect.string(ws).toMatchSnapshot();
+  });
+
+  test("--include-worktree --include-private", ({expect}) => {
+    let ws =
+      TestUtils.run([|
+        "list",
+        "--cwd",
+        "__fixtures__/yarn_v2",
+        "--include-worktree",
+        "--include-private",
+      |]);
+    expect.string(ws).toMatchSnapshot();
+  });
+
   test("--include", ({expect}) => {
     let ws =
       TestUtils.run([|

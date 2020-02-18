@@ -1,14 +1,16 @@
 module Workspace = {
   type t =
     | Package(Fpath.t)
+    | PrivatePackage(Fpath.t)
     | WorkTree(Fpath.t, list(string))
     | Root(Fpath.t, list(string));
 
   let to_path =
     fun
-    | Root(x, _) => x
-    | Package(x) => x
-    | WorkTree(x, _) => x;
+    | Root(x, _)
+    | WorkTree(x, _)
+    | Package(x)
+    | PrivatePackage(x) => x;
 
   let path_to_manifest = (path, manifest_file) =>
     manifest_file |> Fpath.append(path |> Fs.normalize_dir_path);
@@ -18,6 +20,18 @@ module Workspace = {
       let glob = Fpath.append(path, Fpath.v(pattern));
       Fpath.add_seg(glob, "package.json") |> Fpath.to_string;
     });
+
+  let package_type = path => {
+    let json =
+      PackageJson.manifest_file
+      |> Fpath.append(path)
+      |> PackageJson.read_parse_manifest;
+
+    switch (json.private) {
+    | true => PrivatePackage(path)
+    | _ => Package(path)
+    };
+  };
 
   let check_workspace_type =
       (path, ~manifest_file, ~read_parse_manifest, ~get_workspace_patterns) =>
@@ -30,9 +44,9 @@ module Workspace = {
         fun
         | Some(patterns) =>
           Ok(WorkTree(path, patterns |> normalize_patterns(~path)))
-        | None => Ok(Package(path))
+        | None => Ok(package_type(path))
       )
-    | _ => Ok(Package(path))
+    | _ => Error(Errors.Fs_dne(path))
     };
 
   let rec get_dirs = (cwd, ~patterns, ~nested, ~check_workspace_type) => {
@@ -54,7 +68,7 @@ module Workspace = {
       fun
       | Ok(WorkTree(path, patterns)) =>
         path |> get_dirs(~patterns, ~nested, ~check_workspace_type)
-      | _ => [Package(cwd)]
+      | _ => [package_type(cwd)]
     );
   };
 
