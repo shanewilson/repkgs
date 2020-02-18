@@ -36,7 +36,9 @@ module Workspace = {
     };
 
   let rec get_dirs = (cwd, ~patterns, ~nested, ~check_workspace_type) => {
-    let dirs = cwd |> Fs.ls_dir |> Glob.Path.matches(~patterns);
+    let dirs =
+      Fs.ls_dir(cwd, ~fn=(s, acc) => [s, ...acc])
+      |> Glob.Path.matches(~patterns);
 
     dirs
     |> List.map(find_matching_dirs(~nested=true, ~check_workspace_type))

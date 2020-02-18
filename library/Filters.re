@@ -94,3 +94,50 @@ module Name = {
       matches;
     };
 };
+module Fs = {
+  let match_files = (path, ~patterns) =>
+    path
+    |> Fs.ls_dir(~fn=(s, acc) =>
+         patterns |> Glob.Path.match_patterns(~s) ? [s, ...acc] : acc
+       );
+
+  let only = (ws, ~patterns) =>
+    switch (patterns) {
+    | [] => ws
+    | ps =>
+      let matches =
+        ws
+        |> List.filter((w: Manager.Workspace.t) =>
+             w.kind
+             |> Compat.Workspace.to_path
+             |> match_files(~patterns)
+             |> List.length > 0
+           );
+
+      Logs.info(m =>
+        m("Found %i packages matching patterns", matches |> List.length)
+      );
+
+      matches;
+    };
+
+  let ignore = (ws, ~patterns) =>
+    switch (patterns) {
+    | [] => ws
+    | ps =>
+      let matches =
+        ws
+        |> List.filter((w: Manager.Workspace.t) =>
+             w.kind
+             |> Compat.Workspace.to_path
+             |> match_files(~patterns)
+             |> List.length == 0
+           );
+
+      Logs.info(m =>
+        m("Ignoring %i packages matching patterns", matches |> List.length)
+      );
+
+      matches;
+    };
+};

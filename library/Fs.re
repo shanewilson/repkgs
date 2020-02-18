@@ -70,7 +70,7 @@ let normalize_dir_path = cwd => {
 let normalize_cwd = cwd =>
   Fpath.v(cwd) |> Fpath.append(get_cwd()) |> normalize_dir_path;
 
-let ls_dir = cwd =>
+let ls_dir = (cwd, ~fn) =>
   Bos.OS.Path.fold(
     ~elements=`Files,
     ~traverse=
@@ -84,12 +84,7 @@ let ls_dir = cwd =>
           )
         },
       ),
-    (path, acc) => {
-      switch (path |> Fpath.filename) {
-      | "package.json" => [path, ...acc]
-      | _ => acc
-      }
-    },
+    fn,
     [],
     [cwd],
   )

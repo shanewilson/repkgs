@@ -55,6 +55,27 @@ module Name = {
     );
   };
 };
+module Fs = {
+  let docs = "FILE SYSTEM FILTERS";
+
+  let only = {
+    let doc = "Include all packages with any files matching pattern $(docv)";
+    Cmdliner.Arg.(
+      value
+      & opt_all(string, [])
+      & info(["only-fs"], ~docv="GLOB", ~doc, ~docs)
+    );
+  };
+
+  let ignore = {
+    let doc = "Exclude any package with any files matching pattern $(docv)";
+    Cmdliner.Arg.(
+      value
+      & opt_all(string, [])
+      & info(["ignore-fs"], ~docv="GLOB", ~doc, ~docs)
+    );
+  };
+};
 
 let include_worktree = {
   let doc = "Include worktree/root dir.";

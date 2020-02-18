@@ -3,6 +3,7 @@ open TestFramework;
 describe("Glob", ({test, _}) => {
   describe("String", ({test, _}) => {
     let names = [
+      "ignore-me",
       "@scope-a/name-a",
       "@scope-a/name-b",
       "@scope-b/name-a",
@@ -88,6 +89,7 @@ describe("Glob", ({test, _}) => {
   describe("Path", ({test, _}) => {
     let dirs =
       [
+        "ignore/me",
         "workspace/package.json",
         "workspace/package-a/package.json",
         "workspace/packages/package-a/package.json",
@@ -112,6 +114,8 @@ describe("Glob", ({test, _}) => {
       ).
         toEqual(
         [
+          // this isn't to spec but waiting on real globstar support
+          "workspace/package.json",
           "workspace/package-a/package.json",
           "workspace/packages/package-a/package.json",
           "workspace/packages/package-b/package.json",

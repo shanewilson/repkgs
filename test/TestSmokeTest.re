@@ -149,4 +149,84 @@ describe("Integration Test `list`", ({test, _}) => {
       |]);
     expect.string(ws).toMatchSnapshot();
   });
+
+  test("--only-fs", ({expect}) => {
+    let ws =
+      TestUtils.run([|
+        "list",
+        "--cwd",
+        "__fixtures__/yarn_v2",
+        "--only-fs",
+        "**/workspace-a/**",
+      |]);
+    expect.string(ws).toMatchSnapshot();
+  });
+
+  test("--only-fs --only-fs", ({expect}) => {
+    let ws =
+      TestUtils.run([|
+        "list",
+        "--cwd",
+        "__fixtures__/yarn_v2",
+        "--only-fs",
+        "**/workspace-a/**",
+        "--only-fs",
+        "**/package-a/**",
+      |]);
+    expect.string(ws).toMatchSnapshot();
+  });
+
+  test("--ignore-fs", ({expect}) => {
+    let ws =
+      TestUtils.run([|
+        "list",
+        "--cwd",
+        "__fixtures__/yarn_v2",
+        "--ignore-fs",
+        "**/workspace-a/**",
+      |]);
+    expect.string(ws).toMatchSnapshot();
+  });
+
+  test("--ignore-fs --ignore-fs", ({expect}) => {
+    let ws =
+      TestUtils.run([|
+        "list",
+        "--cwd",
+        "__fixtures__/yarn_v2",
+        "--ignore-fs",
+        "**/workspace-a/**",
+        "--ignore-fs",
+        "**/package-a/**",
+      |]);
+    expect.string(ws).toMatchSnapshot();
+  });
+
+  test("--only-fs --ignore-fs", ({expect}) => {
+    let ws =
+      TestUtils.run([|
+        "list",
+        "--cwd",
+        "__fixtures__/yarn_v2",
+        "--only-fs",
+        "**/workspace-a/**",
+        "--ignore-fs",
+        "**/tsconfig.json",
+      |]);
+    expect.string(ws).toMatchSnapshot();
+  });
+
+  test("--include --only-fs", ({expect}) => {
+    let ws =
+      TestUtils.run([|
+        "list",
+        "--cwd",
+        "__fixtures__/yarn_v2",
+        "--include",
+        "@workspace-a/**",
+        "--only-fs",
+        "**/tsconfig.json",
+      |]);
+    expect.string(ws).toMatchSnapshot();
+  });
 });
