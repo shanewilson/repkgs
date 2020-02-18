@@ -1,47 +1,65 @@
-open Re.Glob;
+let glob =
+    (~anchored=false, ~pathname=true, ~period=false, ~expand_braces=true) =>
+  Re.Glob.glob(~anchored, ~pathname, ~period, ~expand_braces);
 
-let create_globs_seq = pattern => {
-  pattern
-  |> Fpath.segs
-  |> List.fold_left(
-       ((patterns, glob), x) => {
-         switch (x) {
-         | "**" => (
-             [
-               Re.Glob.glob("/**/", ~pathname=false),
-               Re.Glob.glob(glob, ~pathname=true),
-               ...patterns,
-             ],
-             "",
-           )
-         | _ => (
-             patterns,
-             switch (glob) {
-             | "" => x
-             | _ => Fpath.add_seg(Fpath.v(glob), x) |> Fpath.to_string
-             },
-           )
-         }
-       },
-       ([], ""),
-     )
-  |> (
-    ((patterns, glob)) =>
-      switch (glob) {
-      | "" => patterns
-      | _ => [Re.Glob.glob(glob, ~pathname=true), ...patterns]
-      }
-  )
-  |> List.rev;
+module String = {
+  let match = (pattern, ~s) =>
+    Re.execp(
+      glob(pattern, ~anchored=true, ~pathname=false) |> Re.compile,
+      s,
+    );
+
+  let match_patterns = (~s) => List.exists(match(~s));
+
+  let matches = (~patterns) =>
+    List.filter(s => patterns |> match_patterns(~s));
 };
 
-let match_patterns = (~path) =>
-  List.exists(pattern =>
+module Path = {
+  let create_globs_seq = pattern => {
+    pattern
+    |> Fpath.v
+    |> Fpath.segs
+    |> List.fold_left(
+         ((patterns, temp), x) => {
+           switch (x) {
+           | "**" => (
+               [
+                 glob("/**/", ~pathname=false),
+                 glob(temp, ~pathname=true),
+                 ...patterns,
+               ],
+               "",
+             )
+           | _ => (
+               patterns,
+               switch (temp) {
+               | "" => x
+               | _ => Fpath.add_seg(Fpath.v(temp), x) |> Fpath.to_string
+               },
+             )
+           }
+         },
+         ([], ""),
+       )
+    |> (
+      ((patterns, temp)) =>
+        switch (temp) {
+        | "" => patterns
+        | _ => [glob(temp, ~pathname=true), ...patterns]
+        }
+    )
+    |> List.rev;
+  };
+
+  let match = (pattern, ~s) =>
     Re.execp(
       Re.seq(create_globs_seq(pattern)) |> Re.compile,
-      path |> Fpath.to_string,
-    )
-  );
+      s |> Fpath.to_string,
+    );
 
-let matches = (~patterns) =>
-  List.filter(path => patterns |> match_patterns(~path));
+  let match_patterns = (~s) => List.exists(match(~s));
+
+  let matches = (~patterns) =>
+    List.filter(s => patterns |> match_patterns(~s));
+};

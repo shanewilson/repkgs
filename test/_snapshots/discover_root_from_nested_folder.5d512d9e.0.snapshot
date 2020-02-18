@@ -1,4 +1,4 @@
-Nested folder › Yarn v2
+discover root from nested folder › Yarn v2
 @workspace-a/package-a
 @workspace-a/package-b
 @workspace-b/package-a

@@ -64,42 +64,33 @@ module Name = {
     switch (patterns) {
     | [] => ws
     | ps =>
-      let match =
+      let matches =
         ws
-        |> List.filter((w: Manager.Workspace.t) => {
-             ps
-             |> List.exists(p => {
-                  Console.log(w.name);
-                  Console.log(p);
-                  Console.log(Glob.test(Glob.of_string(p), w.name));
-                  Glob.test(Glob.of_string(p), w.name);
-                })
-           });
+        |> List.filter((w: Manager.Workspace.t) =>
+             ps |> Glob.String.match_patterns(~s=w.name)
+           );
 
       Logs.info(m =>
-        m("Found %i packages matching patterns", match |> List.length)
+        m("Found %i packages matching patterns", matches |> List.length)
       );
 
-      match;
+      matches;
     };
 
   let exclude_matching_packages = (ws, ~patterns) =>
     switch (patterns) {
     | [] => ws
     | ps =>
-      let match =
+      let matches =
         ws
-        |> List.filter((w: Manager.Workspace.t) => {
-             !(
-               patterns
-               |> List.exists(p => Glob.test(Glob.of_string(p), w.name))
-             )
-           });
+        |> List.filter((w: Manager.Workspace.t) =>
+             !(patterns |> Glob.String.match_patterns(~s=w.name))
+           );
 
       Logs.info(m =>
-        m("Ignoring %i packages matching patterns", match |> List.length)
+        m("Ignoring %i packages matching patterns", matches |> List.length)
       );
 
-      match;
+      matches;
     };
 };

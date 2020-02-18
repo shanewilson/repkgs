@@ -1,8 +1,8 @@
 module Workspace = {
   type t =
     | Package(Fpath.t)
-    | WorkTree(Fpath.t, list(Fpath.t))
-    | Root(Fpath.t, list(Fpath.t));
+    | WorkTree(Fpath.t, list(string))
+    | Root(Fpath.t, list(string));
 
   let to_path =
     fun
@@ -16,7 +16,7 @@ module Workspace = {
   let normalize_patterns = (~path) =>
     List.map(pattern => {
       let glob = Fpath.append(path, Fpath.v(pattern));
-      Fpath.add_seg(glob, "package.json");
+      Fpath.add_seg(glob, "package.json") |> Fpath.to_string;
     });
 
   let check_workspace_type =
@@ -36,7 +36,7 @@ module Workspace = {
     };
 
   let rec get_dirs = (cwd, ~patterns, ~nested, ~check_workspace_type) => {
-    let dirs = cwd |> Fs.ls_dir |> Glob.matches(~patterns);
+    let dirs = cwd |> Fs.ls_dir |> Glob.Path.matches(~patterns);
 
     dirs
     |> List.map(find_matching_dirs(~nested=true, ~check_workspace_type))

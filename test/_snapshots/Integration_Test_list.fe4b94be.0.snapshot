@@ -1,0 +1,4 @@
+Integration Test `list` › --exclude
+@workspace-b/package-a
+@workspace-b/package-b
+

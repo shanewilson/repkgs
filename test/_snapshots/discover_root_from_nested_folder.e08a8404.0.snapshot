@@ -1,5 +1,4 @@
---include-worktree › Yarn v1
-@yarn-v1/worktree (root)
+discover root from nested folder › Yarn v1
 @workspace-a/package-a
 @workspace-a/package-b
 @workspace-b/package-a
