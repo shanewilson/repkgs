@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "description": "Starter Reason Esy Pesy Project",
   "esy": {
-    "build": "dune build -p repkgs--cli",
+    "build": "dune build -p repkgs--cli --profile=release",
     "buildDev": "refmterr dune build -p repkgs--cli",
     "NOTE": "Optional release Section. Customizes result of `esy release`",
     "release": {
       "releasedBinaries": [
-        "RePkgsCli.exe"
+        "repkgs"
       ]
     },
     "buildEnv": {
@@ -80,14 +80,14 @@
         "lwt_ppx"
       ],
       "bin": {
-        "RePkgs.exe": "RePkgsCli.re"
+        "repkgs": "RePkgsCli.re"
       },
       "includeSubdirs": "unqualified"
     }
   },
   "scripts": {
     "pesy": "bash -c 'env PESY_MODE=update pesy'",
-    "start": "esy x RePkgs.exe",
+    "start": "esy x repkgs",
     "test": "esy x RunRePkgsTests.exe",
     "doc": "esy dune build @doc",
     "doc-path": "esy echo #{self.target_dir}/default/_doc/_html/index.html"

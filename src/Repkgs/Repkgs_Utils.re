@@ -9,5 +9,17 @@ let normalizePatterns = patterns => Belt.Array.map(patterns, pathToManifest);
 let findPatternMatches = (patterns, options) =>
   patterns
   ->normalizePatterns
+  ->(
+      ps => {
+        Js.log2("pat?", ps);
+        ps;
+      }
+    )
   ->Bs.FastGlob.sync(options)
-  ->Belt.Array.map(Node.Path.dirname);
+  ->Belt.Array.map(Node.Path.dirname)
+  ->(
+      d => {
+        Js.log2("d?", d);
+        d;
+      }
+    );

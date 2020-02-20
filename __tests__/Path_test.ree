@@ -1,0 +1,31 @@
+open Jest;
+open Expect;
+
+describe("Path", () => {
+  let absPath = Js.Array.joinWith(Node.Path.sep, [|"", "abs", "path"|]);
+  let relPath = Js.Array.joinWith(Node.Path.sep, [|"rel", "path"|]);
+  describe("isAbs", () => {
+    test("correctly identify absolute path", () =>
+      absPath->Path.isAbs |> expect |> toEqual(`Abs)
+    );
+    test("correctly identify relative path", () =>
+      relPath->Path.isAbs |> expect |> toEqual(`Rel)
+    );
+  });
+  describe("isValidSeg", () => {
+    test("correctly identify valid path seg", () =>
+      "seg"->Path.isValidSeg |> expect |> toEqual(`ValidSeg)
+    );
+    test("correctly identify invalid path seg", () =>
+      relPath->Path.isValidSeg |> expect |> toEqual(`InvalidSeg)
+    );
+  });
+  describe("v", () => {
+    test("returns Abs(s)", () =>
+      absPath->Path.v |> expect |> toEqual(Path.Abs(absPath))
+    );
+    test("returns Rel(s)", () =>
+      relPath->Path.v |> expect |> toEqual(Path.Rel(relPath))
+    );
+  });
+});

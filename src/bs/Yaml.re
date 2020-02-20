@@ -1,0 +1,1 @@
+[@bs.module "js-yaml"] external read: string => Js.Json.t = "safeLoad";

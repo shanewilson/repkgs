@@ -4,12 +4,6 @@
 __metadata:
   version: 4
 
-"@berry/worktree@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@berry/worktree@workspace:."
-  languageName: unknown
-  linkType: soft
-
 "@workspace-a/package-a@workspace:workspace-a/packages/package-a":
   version: 0.0.0-use.local
   resolution: "@workspace-a/package-a@workspace:workspace-a/packages/package-a"
@@ -19,6 +13,12 @@ __metadata:
 "@workspace-a/package-b@workspace:workspace-a/packages/package-b":
   version: 0.0.0-use.local
   resolution: "@workspace-a/package-b@workspace:workspace-a/packages/package-b"
+  languageName: unknown
+  linkType: soft
+
+"@workspace-a/package-private@workspace:workspace-a/packages/package-private":
+  version: 0.0.0-use.local
+  resolution: "@workspace-a/package-private@workspace:workspace-a/packages/package-private"
   languageName: unknown
   linkType: soft
 
@@ -43,5 +43,11 @@ __metadata:
 "@workspace-b/worktree@workspace:workspace-b":
   version: 0.0.0-use.local
   resolution: "@workspace-b/worktree@workspace:workspace-b"
+  languageName: unknown
+  linkType: soft
+
+"@yarn-v2/worktree@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@yarn-v2/worktree@workspace:."
   languageName: unknown
   linkType: soft

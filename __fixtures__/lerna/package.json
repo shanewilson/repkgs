@@ -1,5 +1,5 @@
 {
-  "name": "@yarn-v1/worktree",
+  "name": "@lerna/monorepo",
   "private": true,
   "version": "0.0.0",
   "workspaces": {
@@ -10,6 +10,9 @@
     ]
   },
   "scripts": {
-    "test": "yarn workspaces info"
+    "test": "lerna list"
+  },
+  "devDependencies": {
+    "lerna": "^3.20.2"
   }
 }
