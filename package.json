@@ -15,40 +15,26 @@
       "<rootDir>/__tests__/"
     ],
     "transformIgnorePatterns": [
-      "/node_modules/(?!@glennsl/*|bs-platform|wonka|decco).+\\.js$"
+      "/node_modules/(?!@glennsl/*|bs-platform|decco).+\\.js$"
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.8.7",
-    "@babel/plugin-transform-modules-commonjs": "^7.8.3",
-    "@glennsl/bs-jest": "^0.5.0",
-    "@rollup/plugin-commonjs": "^11.0.2",
-    "@rollup/plugin-node-resolve": "^7.1.1",
     "@types/node": "^13.9.1",
     "bs-platform": "^7.2.2",
     "esm": "^3.2.25",
     "gentype": "^3.15.0",
-    "rollup": "^1.31.1",
-    "rollup-plugin-terser": "^5.2.0",
     "typescript": "^3.8.3"
   },
   "scripts": {
-    "clean": "bsb -clean-world",
-    "build": "bsb -make-world",
-    "watch": "bsb -make-world -w",
-    "test": "jest",
+    "make": "bsb -clean-world -make-world",
     "problems": "tsc --noEmit",
-    "start": "node -r esm ./src/RepkgsCli.bs.js",
-    "bundle": "node bundle.js",
-    "bin": "repkgs"
+    "repkgs": "node -r esm ./src/cli/Cli.bs.js"
   },
   "dependencies": {
     "@elliottcable/bs-cmdliner": "^10.2.2",
     "decco": "^1.2.0",
-    "execa": "^4.0.0",
     "fast-glob": "^3.2.2",
-    "js-yaml": "^3.13.1",
-    "wonka": "^4.0.7"
+    "js-yaml": "^3.13.1"
   },
   "volta": {
     "node": "13.9.0",
