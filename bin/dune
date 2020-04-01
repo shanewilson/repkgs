@@ -1,6 +1,6 @@
 (executable (name RePkgsCli)
-    (modules (:standard \ RepkgsCliBinPesyModules))
-    (public_name RePkgs.exe) (libraries repkgs--cli.bin.pesy-modules)
+    (modules (:standard \ RepkgsCliBinPesyModules)) (public_name repkgs)
+    (libraries repkgs--cli.bin.pesy-modules)
     (flags -open RepkgsCliBinPesyModules) (preprocess (pps lwt_ppx)))
 (library (public_name repkgs--cli.bin.pesy-modules)
     (name RepkgsCliBinPesyModules) (modules RepkgsCliBinPesyModules)

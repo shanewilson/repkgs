@@ -182,6 +182,7 @@ describe("Compat", () => {
           "workspace-a",
           "workspace-a/packages/package-a",
           "workspace-a/packages/package-b",
+          "workspace-a/packages/package-private",
           "workspace-b",
           "workspace-b/package-a",
           "workspace-b/package-b",

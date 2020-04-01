@@ -19,7 +19,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
     ],
     "dependencyTreeRoots": [
       {
-        "name": "@berry/worktree",
+        "name": "@yarn-v2/worktree",
         "reference": "workspace:."
       },
       {
@@ -39,6 +39,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:workspace-a/packages/package-b"
       },
       {
+        "name": "@workspace-a/package-private",
+        "reference": "workspace:workspace-a/packages/package-private"
+      },
+      {
         "name": "@workspace-b/package-a",
         "reference": "workspace:workspace-b/package-a"
       },
@@ -50,19 +54,21 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
     "enableTopLevelFallback": true,
     "ignorePatternData": "(^(?:\\.vscode\\/pnpify(?:\\/(?!\\.)(?:(?:(?!(?:^|\\/)\\.).)*?)|$))$)",
     "fallbackExclusionList": [
-      ["@berry/worktree", ["workspace:."]],
       ["@workspace-a/package-a", ["workspace:workspace-a/packages/package-a"]],
       ["@workspace-a/package-b", ["workspace:workspace-a/packages/package-b"]],
+      ["@workspace-a/package-private", ["workspace:workspace-a/packages/package-private"]],
       ["@workspace-a/worktree", ["workspace:workspace-a"]],
       ["@workspace-b/package-a", ["workspace:workspace-b/package-a"]],
       ["@workspace-b/package-b", ["workspace:workspace-b/package-b"]],
-      ["@workspace-b/worktree", ["workspace:workspace-b"]]
+      ["@workspace-b/worktree", ["workspace:workspace-b"]],
+      ["@yarn-v2/worktree", ["workspace:."]]
     ],
     "locationBlacklistData": [
     ],
     "locationDiscardData": [
     ],
     "locationLengthData": [
+      39,
       33,
       24,
       14,
@@ -73,15 +79,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [null, {
           "packageLocation": "./",
           "packageDependencies": [
-          ],
-          "linkType": "SOFT"
-        }]
-      ]],
-      ["@berry/worktree", [
-        ["workspace:.", {
-          "packageLocation": "./",
-          "packageDependencies": [
-            ["@berry/worktree", "workspace:."]
           ],
           "linkType": "SOFT"
         }]
@@ -100,6 +97,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./workspace-a/packages/package-b/",
           "packageDependencies": [
             ["@workspace-a/package-b", "workspace:workspace-a/packages/package-b"]
+          ],
+          "linkType": "SOFT"
+        }]
+      ]],
+      ["@workspace-a/package-private", [
+        ["workspace:workspace-a/packages/package-private", {
+          "packageLocation": "./workspace-a/packages/package-private/",
+          "packageDependencies": [
+            ["@workspace-a/package-private", "workspace:workspace-a/packages/package-private"]
           ],
           "linkType": "SOFT"
         }]
@@ -136,6 +142,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./workspace-b/",
           "packageDependencies": [
             ["@workspace-b/worktree", "workspace:workspace-b"]
+          ],
+          "linkType": "SOFT"
+        }]
+      ]],
+      ["@yarn-v2/worktree", [
+        ["workspace:.", {
+          "packageLocation": "./",
+          "packageDependencies": [
+            ["@yarn-v2/worktree", "workspace:."]
           ],
           "linkType": "SOFT"
         }]

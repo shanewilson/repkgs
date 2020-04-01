@@ -4,7 +4,13 @@
   "sources": [
     {
       "dir": "src",
-      "subdirs": ["Repkgs", "RepkgsCli"],
+      "subdirs": [
+        "bs",
+        "library",
+        "cli",
+        "Repkgs",
+        "RepkgsCli"
+      ],
       "public": [
         "Repkgs"
       ]
@@ -34,17 +40,19 @@
   "bs-dev-dependencies": [
     "@glennsl/bs-jest"
   ],
-  "ppx-flags": [ "decco/ppx" ],
+  "ppx-flags": [
+    "decco/ppx"
+  ],
   "bsc-flags": [
+    "-bs-no-version-header",
     "-bs-g",
     "-bs-super-errors",
     "-warn-error",
     "@A",
     "-w",
-    "-4-9-30-40-41-42-44-102"
+    "-4-9-30-40-41-42-44-102-48",
+    "-open",
+    "Belt"
   ],
-  "warnings": {
-    "error": "+101"
-  },
   "refmt": 3
 }
