@@ -1,0 +1,22 @@
+name: Prerelease
+
+on:
+  pull_request:
+
+jobs:
+  type:
+    name: Make World
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [10]
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: yarn install
+      - run: yarn bsb -clean-world -make-world
