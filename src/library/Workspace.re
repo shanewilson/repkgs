@@ -58,11 +58,10 @@ module Error = {
 type t = {
   root: Path.t,
   packages: List.t(Package.t),
-  error: Error.t,
 };
 let root = t => t.root;
 let packages = t => t.packages;
-let error = t => t.error;
+
 let splitErrors = xs =>
   xs->List.reduce(([], []), ((oks, errs), r) =>
     switch (r) {
@@ -80,5 +79,8 @@ let v = (cwd, ~workspaces) => {
 
   let packagesR = patterns->findPackages;
   let (packages, errors) = packagesR->splitErrors;
-  {root, packages, error: `WorkspaceErrors(errors)};
+  switch (errors) {
+  | [] => {root, packages}->Ok
+  | _ => `WorkspaceErrors(errors)->Error
+  };
 };

@@ -15,28 +15,26 @@ module ListCmd = {
       ) => {
     let workspace = cwd->Workspace.v(~workspaces);
 
-    switch (workspace->Workspace.error) {
-    | `WorkspaceErrors(errs) =>
-      switch (errs) {
-      | [] =>
-        let _ =
-          workspace
-          ->Workspace.packages
-          ->Package.Filters.Include.includePrivate(~includePrivate)
-          ->Package.Filters.Name.only(~nameOnly)
-          ->Package.Filters.Name.ignored(~nameIgnored)
-          ->Package.Filters.Path.only(~pathOnly)
-          ->Package.Filters.Path.ignored(~pathIgnored)
-          ->Package.Filters.Fs.only(~fsOnly)
-          ->Package.Filters.Fs.ignored(~fsIgnored)
-          ->List.sort((a, b) =>
-              String.compare(a->Package.name, b->Package.name)
-            )
-          ->List.map(Package.name)
-          ->List.map(Js.log);
-        ();
-      | es => `WorkspaceErrors(es)->Workspace.Error.handle
-      }
+    switch (workspace) {
+    | Error(`WorkspaceErrors(es)) =>
+      `WorkspaceErrors(es)->Workspace.Error.handle
+    | Ok(wk) =>
+      let _ =
+        wk
+        ->Workspace.packages
+        ->Package.Filters.Include.includePrivate(~includePrivate)
+        ->Package.Filters.Name.only(~nameOnly)
+        ->Package.Filters.Name.ignored(~nameIgnored)
+        ->Package.Filters.Path.only(~pathOnly)
+        ->Package.Filters.Path.ignored(~pathIgnored)
+        ->Package.Filters.Fs.only(~fsOnly)
+        ->Package.Filters.Fs.ignored(~fsIgnored)
+        ->List.sort((a, b) =>
+            String.compare(a->Package.name, b->Package.name)
+          )
+        ->List.map(Package.name)
+        ->List.map(Js.log);
+      ();
     };
   };
 

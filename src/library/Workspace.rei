@@ -8,7 +8,7 @@ module Error: {
 };
 
 type t;
-let v: (string, ~workspaces: List.t(List.t(string))) => t;
+let v:
+  (string, ~workspaces: List.t(List.t(string))) => Result.t(t, [> Error.t]);
 let root: t => Path.t;
 let packages: t => List.t(Package.t);
-let error: t => Error.t;
