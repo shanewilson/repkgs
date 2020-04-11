@@ -1,10 +1,16 @@
 module Error: {
   type t = [
     | `WorkspaceErrors(
-        List.t([ Fs.Error.t | PackageJson.Error.t | Package.Error.t]),
+        List.t(
+          [
+            Fs.Error.t
+            | Parse.Error.t
+            | PackageJson.Error.t
+            | Package.Error.t
+          ],
+        ),
       )
   ];
-  let handle: t => unit;
 };
 
 type t;

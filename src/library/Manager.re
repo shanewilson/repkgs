@@ -31,17 +31,6 @@ module Error = {
     | `ManifestParse(Path.t, Fs.Error.t)
     | `ManifestDecode(Path.t, Decco.decodeError)
   ];
-  let handle = e =>
-    switch (e) {
-    | `ManifestDecode(p, err) =>
-      Js.log2("path: ", p->Path.pp);
-      Js.log2("decode error", err);
-    | `ManifestParse(p, exn) =>
-      Js.log2("path: ", p->Path.pp);
-      ignore(Fs.Error.handle(exn));
-    | `ManagerManifestMissingPatterns(p) =>
-      Js.log2("manifest missing patterns: ", p)
-    };
 };
 type t =
   | Stdin(Manager.t)

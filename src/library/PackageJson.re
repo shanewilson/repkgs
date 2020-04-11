@@ -32,17 +32,8 @@ type t = {
 module Error = {
   type t = [
     | `PackageJsonDecode(Path.t, Decco.decodeError)
-    | `PackageJsonParse(Path.t, Fs.Error.t)
+    | `PackageJsonParse(Path.t, Parse.Error.t)
   ];
-  let handle = e =>
-    switch (e) {
-    | `PackageJsonDecode(p, err) =>
-      Js.log2("path: ", p->Path.pp);
-      Js.log2("decode error", err);
-    | `PackageJsonParse(p, exn) =>
-      Js.log2("path: ", p->Path.pp);
-      ignore(Fs.Error.handle(exn));
-    };
 };
 let filename = "package.json";
 let name = p => p.name;
@@ -54,11 +45,9 @@ let encode = t_encode;
 let get = s => {
   let p = s->path;
   switch (p->Fs.read) {
-  | Error(err) =>
-    err->Fs.Error.handle;
-    err->Error;
+  | Error(err) => err->Error
   | Ok(s) =>
-    switch (s->Fs.parseJson) {
+    switch (s->Parse.json) {
     | Error(err) => `PackageJsonParse((p, err))->Error
     | Ok(json) =>
       switch (json->decode) {

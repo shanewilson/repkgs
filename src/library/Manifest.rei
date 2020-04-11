@@ -1,9 +1,8 @@
 module Error: {
   type t = [
-    | `ManifestParse(Path.t, Fs.Error.t)
+    | `ManifestParse(Path.t, Parse.Error.t)
     | `ManifestDecode(Path.t, Decco.decodeError)
   ];
-  let handle: t => unit;
 };
 module type Manifest = {
   type t;

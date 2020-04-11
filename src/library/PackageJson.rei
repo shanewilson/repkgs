@@ -5,9 +5,8 @@ module Workspaces: {
 module Error: {
   type t = [
     | `PackageJsonDecode(Path.t, Decco.decodeError)
-    | `PackageJsonParse(Path.t, Fs.Error.t)
+    | `PackageJsonParse(Path.t, Parse.Error.t)
   ];
-  let handle: t => unit;
 };
 type t;
 let filename: string;

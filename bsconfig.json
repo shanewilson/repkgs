@@ -6,8 +6,11 @@
       "dir": "src",
       "subdirs": [
         "bs",
+        "bs/Ink",
         "library",
-        "cli"
+        "cli",
+        "components",
+        "components/Error"
       ]
     },
     {
@@ -29,7 +32,8 @@
   "suffix": ".bs.js",
   "bs-dependencies": [
     "decco",
-    "@elliottcable/bs-cmdliner"
+    "@elliottcable/bs-cmdliner",
+    "reason-react"
   ],
   "ppx-flags": [
     "decco/ppx"
@@ -45,5 +49,8 @@
     "-open",
     "Belt"
   ],
-  "refmt": 3
+  "refmt": 3,
+  "reason": {
+    "react-jsx": 3
+  }
 }

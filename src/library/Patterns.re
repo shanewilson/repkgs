@@ -1,10 +1,5 @@
 module Error = {
   type t = [ | `ManagerManifestMissingPatterns(Path.t)];
-  let handle = e =>
-    switch (e) {
-    | `ManagerManifestMissingPatterns(p) =>
-      Js.log2("manifest missing patterns: ", p)
-    };
 };
 
 type t = List.t(Glob.t2);
