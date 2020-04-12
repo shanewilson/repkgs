@@ -1,17 +1,8 @@
 module Error = {
   type t = [
-    | `ManifestParse(Path.t, Fs.Error.t)
+    | `ManifestParse(Path.t, Parse.Error.t)
     | `ManifestDecode(Path.t, Decco.decodeError)
   ];
-  let handle = e =>
-    switch (e) {
-    | `ManifestDecode(p, err) =>
-      Js.log2("path: ", p->Path.pp);
-      Js.log2("decode error", err);
-    | `ManifestParse(p, exn) =>
-      Js.log2("path: ", p->Path.pp);
-      ignore(Fs.Error.handle(exn));
-    };
 };
 
 module type Config = {
@@ -20,7 +11,7 @@ module type Config = {
   let patterns: t => List.t(string);
   let path: Path.t => Path.t;
   let t_decode: Js.Json.t => Result.t(t, Decco.decodeError);
-  let parse: string => Result.t(Js.Json.t, Fs.Error.t);
+  let parse: string => Result.t(Js.Json.t, Parse.Error.t);
 };
 
 module type Manifest = {
@@ -62,7 +53,7 @@ module Yarn_ = {
     };
   List.fromArray;
   let path = p => p->Path.append(filename->Path.v);
-  let parse = Fs.parseJson;
+  let parse = Parse.json;
 };
 module YarnJson = Manifest(Yarn_);
 
@@ -75,7 +66,7 @@ module Lerna_ = {
   let filename = "lerna.json";
   let patterns = p => p.packages->List.fromArray;
   let path = p => p->Path.append(filename->Path.v);
-  let parse = Fs.parseJson;
+  let parse = Parse.json;
 };
 module LernaJson = Manifest(Lerna_);
 
@@ -88,7 +79,7 @@ module Pnpm_ = {
   let filename = "pnpm-workspace.yaml";
   let patterns = p => p.packages->List.fromArray;
   let path = p => p->Path.append(filename->Path.v);
-  let parse = Fs.parseYaml;
+  let parse = Parse.yaml;
 };
 module PnpmYaml = Manifest(Pnpm_);
 
@@ -107,6 +98,6 @@ module Rush_ = {
   let patterns = p =>
     p.projects->Array.map(p => p.projectFolder)->List.fromArray;
   let path = p => p->Path.append(filename->Path.v);
-  let parse = Fs.parseJson;
+  let parse = Parse.json;
 };
 module RushJson = Manifest(Rush_);

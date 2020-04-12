@@ -14,17 +14,7 @@ module Error = {
     | `FsDoesNotExist(Path.t)
     | `FsNotAFile(Path.t)
     | `FsNotADirectory(Path.t)
-    | `ParseJson(Js.Exn.t)
-    | `ParseYaml(Js.Exn.t)
   ];
-  let handle = e =>
-    switch (e) {
-    | `FsDoesNotExist(p) => Js.log2("File does not exist: ", p)
-    | `FsNotADirectory(p) => Js.log2("Not a directory: ", p)
-    | `FsNotAFile(p) => Js.log2("Not a file: ", p)
-    | `ParseJson(exn) => Js.log2("parseJson error: ", exn->Js.Exn.message)
-    | `ParseYaml(exn) => Js.log2("parseYaml error: ", exn->Js.Exn.message)
-    };
 };
 
 type t =
@@ -62,7 +52,10 @@ let toDirectory = p =>
   };
 let read = p =>
   switch (p->v) {
-  | File(p) => p->Path.toString->Node.Fs.readFileAsUtf8Sync->Ok
+  | File(p) =>
+    try((p->Path.toString ++ "")->Node.Fs.readFileAsUtf8Sync->Ok) {
+    | _ => `FsDoesNotExist(p)->Error
+    }
   | Dir(_) => `FsNotAFile(p)->Error
   | DNE(_) => `FsDoesNotExist(p)->Error
   };
@@ -71,12 +64,4 @@ let contents = p =>
   | Dir(p) => p->Path.toString->Node.Fs.readFileAsUtf8Sync->Ok
   | File(_) => `FsNotADirectory(p)->Error
   | DNE(_) => `FsDoesNotExist(p)->Error
-  };
-let parseJson = s =>
-  try(s->Js.Json.parseExn->Ok) {
-  | Js.Exn.Error(e) => `ParseJson(e)->Error
-  };
-let parseYaml = s =>
-  try(s->Yaml.read->Ok) {
-  | Js.Exn.Error(e) => `ParseYaml(e)->Error
   };

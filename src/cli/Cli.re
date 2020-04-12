@@ -22,7 +22,9 @@ let _ =
   try(
     switch (Term.eval_choice(defaultCmd, Cmds.cmds)) {
     | `Error(_) => exit(1)
-    | _ => exit(0)
+    | `Version
+    | `Help => exit(0)
+    | `Ok(_) => ()
     }
   ) {
   | Js.Exn.Error(err) =>

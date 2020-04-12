@@ -1,12 +1,5 @@
 module Error = {
-  type t = [ | `PackageMissingReqField(Path.t, string)];
-
-  let handle = err =>
-    switch (err) {
-    | `PackageMissingReqField(p, f) =>
-      Js.log2("package.json at:", p);
-      Js.log2("Missing field:", f);
-    };
+  type t = [ | `PackageMissingReqField(Path.t, string, string)];
 };
 type pkg = {
   name: string,
@@ -47,7 +40,13 @@ let v = (path: Path.t) => {
       ->Ok
     | (`Public, Some(name)) =>
       Publishable({name, path, packageJson: json})->Ok
-    | (`Public, None) => `PackageMissingReqField((path, "name"))->Error
+    | (`Public, None) =>
+      `PackageMissingReqField((
+        path,
+        "name",
+        "Public packages need to be named",
+      ))
+      ->Error
     }
   | Error(err) => err->Error
   };
@@ -125,5 +124,26 @@ module Filters = {
           fsIgnored->Glob.v(~cwd=p->path)->Glob.vmatch->ignored
         ),
       );
+  };
+
+  let make =
+      (
+        ps,
+        ~includePrivate,
+        ~nameOnly,
+        ~nameIgnored,
+        ~pathOnly,
+        ~pathIgnored,
+        ~fsOnly,
+        ~fsIgnored,
+      ) => {
+    ps
+    ->Include.includePrivate(~includePrivate)
+    ->Name.only(~nameOnly)
+    ->Name.ignored(~nameIgnored)
+    ->Path.only(~pathOnly)
+    ->Path.ignored(~pathIgnored)
+    ->Fs.only(~fsOnly)
+    ->Fs.ignored(~fsIgnored);
   };
 };
