@@ -34,12 +34,12 @@ module Common = {
   };
 };
 
-module Since = {
+module Changed = {
   let docs = "CHANGED SINCE FILTERS";
   let since = {
     let doc = "Find packages modified since $(docv)";
     value
-    & opt(~vopt="HEAD..", string, "")
+    & opt(~vopt="HEAD~...", string, "")
     & info(["since"], ~docv="COMMIT", ~doc, ~docs);
   };
   let sinceBranch = {

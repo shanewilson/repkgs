@@ -97,7 +97,7 @@ module Filters = {
         ),
       );
   };
-  module Path = {
+  module Dir = {
     let only = (ps, ~pathOnly) =>
       ps->List.keep(
         triggerOn(~xs=pathOnly, ~fn=p =>
@@ -125,10 +125,35 @@ module Filters = {
         ),
       );
   };
+  module Git = {
+    let since = (ps, ~cwd, ~since, ~sinceBranch, ~sinceLatestTag) => {
+      let git = Git.findTrackedFiles(~cwd);
+      let lines =
+        (
+          switch (sinceLatestTag, sinceBranch, since) {
+          | (false, "", "") => []
+          | (false, "", s) => s->git
+          | (false, b, _) => (b ++ "...")->git
+          | (true, _, _) => (Git.findClosestTag(~cwd) ++ "...")->git
+          }
+        )
+        ->List.map(line => cwd->Path.addSeg(line)->Path.toString);
 
+      ps->List.keep(
+        triggerOn(
+          ~xs=lines,
+          ~fn=pkg => {
+            let p = pkg->path->Path.addSeg("**")->Path.toString;
+            lines->Glob.mmatches(~patterns=[p])->only;
+          },
+        ),
+      );
+    };
+  };
   let make =
       (
         ps,
+        ~cwd,
         ~includePrivate,
         ~nameOnly,
         ~nameIgnored,
@@ -136,13 +161,17 @@ module Filters = {
         ~pathIgnored,
         ~fsOnly,
         ~fsIgnored,
+        ~since,
+        ~sinceBranch,
+        ~sinceLatestTag,
       ) => {
     ps
     ->Include.includePrivate(~includePrivate)
     ->Name.only(~nameOnly)
     ->Name.ignored(~nameIgnored)
-    ->Path.only(~pathOnly)
-    ->Path.ignored(~pathIgnored)
+    ->Dir.only(~pathOnly)
+    ->Dir.ignored(~pathIgnored)
+    ->Git.since(~cwd, ~since, ~sinceBranch, ~sinceLatestTag)
     ->Fs.only(~fsOnly)
     ->Fs.ignored(~fsIgnored);
   };

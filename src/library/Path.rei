@@ -11,6 +11,8 @@ let pps: List.t(t) => array(string);
 [@genType]
 let append: (t, t) => t;
 [@genType]
+let addSeg: (t, string) => t;
+[@genType]
 let type_: t => [> | `Homedir | `Tmpdir | `Path];
 [@genType]
 let resolve: (~cwd: t, string) => t;

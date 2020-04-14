@@ -19,7 +19,6 @@ type t = {
 };
 let root = t => t.root;
 let packages = t => t.packages;
-
 let splitErrors = xs =>
   xs->List.reduce(([], []), ((oks, errs), r) =>
     switch (r) {
@@ -31,8 +30,8 @@ let findPackages = patterns =>
   patterns
   ->Glob.vmatchesManifest(~manifest=PackageJson.filename)
   ->List.map(Package.v);
-let v = (cwd, ~workspaces) => {
-  let root = ""->Path.resolve(~cwd=cwd->Path.v);
+let findRoot = cwd => ""->Path.resolve(~cwd=cwd->Path.v);
+let v = (root, ~workspaces) => {
   let patterns = root->Patterns.v(~patterns=workspaces->List.flatten);
 
   let packagesR = patterns->findPackages;

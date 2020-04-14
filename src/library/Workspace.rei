@@ -15,6 +15,7 @@ module Error: {
 
 type t;
 let v:
-  (string, ~workspaces: List.t(List.t(string))) => Result.t(t, [> Error.t]);
+  (Path.t, ~workspaces: List.t(List.t(string))) => Result.t(t, [> Error.t]);
+let findRoot: string => Path.t;
 let root: t => Path.t;
 let packages: t => List.t(Package.t);
