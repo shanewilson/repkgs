@@ -12,6 +12,9 @@ module ListCmd = {
         pathIgnored,
         fsOnly,
         fsIgnored,
+        since,
+        sinceBranch,
+        sinceLatestTag,
       ) => {
     Ink.render(
       <ListPackages
@@ -24,6 +27,9 @@ module ListCmd = {
         pathIgnored
         fsOnly
         fsIgnored
+        since
+        sinceBranch
+        sinceLatestTag
       />,
     );
   };
@@ -43,6 +49,9 @@ module ListCmd = {
         $ Args.Path.ignored
         $ Args.Fs.only
         $ Args.Fs.ignored
+        $ Args.Changed.since
+        $ Args.Changed.sinceBranch
+        $ Args.Changed.sinceLatestTag
       ),
       Term.info("list", ~doc, ~sdocs=Manpage.s_common_options),
     );

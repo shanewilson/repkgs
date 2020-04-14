@@ -12,8 +12,12 @@ let make =
       ~pathIgnored,
       ~fsOnly,
       ~fsIgnored,
+      ~since,
+      ~sinceBranch,
+      ~sinceLatestTag,
     ) => {
-  let workspace = cwd->Workspace.v(~workspaces);
+  let root = cwd->Workspace.findRoot;
+  let workspace = root->Workspace.v(~workspaces);
 
   switch (workspace) {
   | Error(error) => <Error error />
@@ -22,6 +26,7 @@ let make =
       wk
       ->Workspace.packages
       ->Package.Filters.make(
+          ~cwd=root,
           ~includePrivate,
           ~nameOnly,
           ~nameIgnored,
@@ -29,6 +34,9 @@ let make =
           ~pathIgnored,
           ~fsOnly,
           ~fsIgnored,
+          ~since,
+          ~sinceBranch,
+          ~sinceLatestTag,
         )
       ->List.sort((a, b) =>
           String.compare(

@@ -5,10 +5,15 @@ type t2 = {
 };
 let pp = t => {"patterns": t.patterns->List.toArray, "cwd": t.cwd->Path.pp};
 let v = (patterns, ~cwd) => {patterns, cwd};
-
-let mmatch = (s, ~patterns) =>
-  Micromatch.mm(s, patterns->List.toArray, Micromatch.t(~contains=true, ()))
+let mmatches = (ss, ~patterns) =>
+  Micromatch.mm(
+    ss->List.toArray,
+    patterns->List.toArray,
+    Micromatch.t(~contains=true, ()),
+  )
   ->List.fromArray;
+
+let mmatch = (s, ~patterns) => [s]->mmatches(~patterns);
 
 let vmatch = glob => {
   glob.patterns

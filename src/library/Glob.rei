@@ -15,6 +15,8 @@ let v: (List.t(string), ~cwd: Path.t) => t2;
 [@genType]
 let mmatch: (string, ~patterns: List.t(string)) => List.t(string);
 [@genType]
+let mmatches: (List.t(string), ~patterns: List.t(string)) => List.t(string);
+[@genType]
 let vmatch: t2 => List.t(Path.t);
 [@genType]
 let vmatches: List.t(t2) => List.t(Path.t);

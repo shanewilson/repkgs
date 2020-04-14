@@ -26,6 +26,11 @@ let append = (a, b) =>
   | Absolute(_) => b
   | Relative(bs) => Node.Path.join2(a->toString, bs)->v
   };
+let addSeg = (a, b) =>
+  switch (a) {
+  | Absolute(s)
+  | Relative(s) => Node.Path.join2(s, b)->v
+  };
 // let isValidSeg = s =>
 //   s->Js.String2.includes(Node.Path.sep) ? `InvalidSeg : `ValidSeg;
 // let addSeg = (a, b) =>

@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@elliottcable/bs-cmdliner": "^10.2.2",
+    "cross-spawn": "^7.0.2",
     "decco": "^1.2.0",
     "fast-glob": "^3.2.2",
     "ink": "^2.7.1",

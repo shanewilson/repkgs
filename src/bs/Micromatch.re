@@ -4,4 +4,4 @@ type t = {
   contains: bool,
 };
 [@bs.module "micromatch"]
-external mm: (string, array(string), t) => array(string) = "default";
+external mm: (array(string), array(string), t) => array(string) = "default";
