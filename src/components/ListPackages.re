@@ -25,7 +25,7 @@ let make =
     let packages =
       wk
       ->Workspace.packages
-      ->Package.Filters.make(
+      ->Filters.make(
           ~cwd=root,
           ~includePrivate,
           ~nameOnly,
@@ -61,7 +61,7 @@ let make =
                 <Color blackBright=true italic=true>
                   " (private)"->React.string
                 </Color>
-              | _ => ""->React.string
+              | _ => React.null
               }}
            </Box>
          )
