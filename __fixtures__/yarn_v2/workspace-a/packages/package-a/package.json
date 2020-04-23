@@ -1,4 +1,8 @@
 {
   "name": "@workspace-a/package-a",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "bin": {
+    "bin1": "./bin1.js",
+    "bin2": "./bin2.js"
+  }
 }

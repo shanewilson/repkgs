@@ -2,6 +2,7 @@ module Workspaces: {
   type t;
   let packages: t => List.t(string);
 };
+
 module Error: {
   type t = [
     | `PackageJsonDecode(Path.t, Decco.decodeError)
@@ -11,6 +12,12 @@ module Error: {
 type t;
 let filename: string;
 let name: t => option(string);
+let bin: t => option(List.t(string));
+let main: t => option(string);
+let files: t => option(List.t(string));
+let devDependencies: t => option(Js.Dict.t(string));
+let dependencies: t => option(Js.Dict.t(string));
+let peerDependencies: t => option(Js.Dict.t(string));
 let private_: t => [> | `Private | `Public];
 let workspaces: t => option(Workspaces.t);
 let path: Path.t => Path.t;
