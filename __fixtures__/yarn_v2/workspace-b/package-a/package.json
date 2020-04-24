@@ -1,6 +1,7 @@
 {
   "name": "@workspace-b/package-a",
   "version": "1.0.0",
+  "main": "index.js",
   "dependencies": {
     "beep": "1.0.0",
     "@workspace-a/package-a": "*"
