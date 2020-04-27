@@ -72,8 +72,8 @@ type t = {
   private: bool,
   version: option(string),
   main: option(string),
-  files: option(array(string)),
-  beep: option(Bin.t),
+  [@decco.default [|"*"|]]
+  files: array(string),
   bin: option(Bin.t),
   devDependencies: option(Js.Dict.t(string)),
   dependencies: option(Js.Dict.t(string)),
@@ -90,7 +90,7 @@ let filename = "package.json";
 let name = p => p.name;
 let private_ = p => p.private ? `Private : `Public;
 let main = p => p.main;
-let files = p => p.files->Option.flatMap(arr => Some(arr->List.fromArray));
+let files = p => p.files->List.fromArray;
 let bin = p => p.bin->Option.flatMap(arr => Some(arr->List.fromArray));
 let workspaces = p => p.workspaces;
 let devDependencies = p => p.devDependencies;

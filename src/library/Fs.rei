@@ -1,5 +1,8 @@
 [@genType]
-type t;
+type t =
+  | Dir(Path.t)
+  | File(Path.t)
+  | DNE(Path.t);
 [@genType]
 module Error: {
   type t = [

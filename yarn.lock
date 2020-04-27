@@ -238,6 +238,11 @@ fill-range@^7.0.1:
   dependencies:
     to-regex-range "^5.0.1"
 
+flow-parser@^0.123.0:
+  version "0.123.0"
+  resolved "https://registry.yarnpkg.com/flow-parser/-/flow-parser-0.123.0.tgz#0fbcf4283335fca86d4cb2cf674dfbc5092a4efc"
+  integrity sha512-scMjcsICxtHm141rFTfWgKnNbz9MUubgc9kNSh+0xvTYIA/L+9AzlPRK0FMcfNiqQTWjn0IMGqiwySLzMZVvtw==
+
 gentype@^3.15.0:
   version "3.15.0"
   resolved "https://registry.yarnpkg.com/gentype/-/gentype-3.15.0.tgz#24cf09bcd98822e1fc4cce36a70239ff49404432"
