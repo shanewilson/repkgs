@@ -117,7 +117,7 @@ let make =
                        <Box flexDirection="column">
                          <Border>
                            <Color cyan=true bold=true>
-                             "files:"->React.string
+                             "packed files:"->React.string
                            </Color>
                          </Border>
                          {arr
@@ -160,49 +160,58 @@ let make =
                           ->React.array}
                        </Box>
                      }}
-                    <Box flexDirection="column">
-                      "\n"->React.string
-                      {[
+                    {switch (
+                       Set.String.diff(
                          p
-                         ->Package.packageJson
-                         ->PackageJson.main
-                         ->Option.flatMap(s => Some([s])),
-                         p->Package.packageJson->PackageJson.bin,
-                         Some(p->Package.packageJson->PackageJson.files),
-                       ]
-                       ->List.reduce([], (acc, xs) =>
-                           switch (xs) {
-                           | Some(xs) => acc->List.concat(xs)
-                           | None => acc
-                           }
-                         )
-                       ->List.map(s => {
-                           let x = p->Package.path->Path.addSeg(s);
-                           switch (x->Fs.v) {
-                           | File(file) => [file]
-                           | Dir(dir) =>
-                             [dir->Path.addSeg("**")->Path.toString]
-                             ->Glob.v(~cwd=p->Package.path)
-                             ->Glob.vmatch
-                           | DNE(_) =>
-                             [s]->Glob.v(~cwd=p->Package.path)->Glob.vmatch
-                           };
-                         })
-                       ->List.flatten
-                       ->List.map(s =>
-                           "\n"
-                           ++ s->Path.pp
-                           ++ "\n\n"
-                           ++ s
-                              ->Fs.read
-                              ->Result.getExn
-                              ->FlowParser.parse
-                              ->Js.Json.stringify
-                         )
-                       ->List.map(React.string)
-                       ->List.toArray
-                       ->React.array}
-                    </Box>
+                         ->Pack.gatherFilesFromJson
+                         ->Pack.findImports
+                         ->List.keep(
+                             fun
+                             | Local(_) => true
+                             | _ => false,
+                           )
+                         ->List.map(x =>
+                             x
+                             ->Pack.toString
+                             ->Path.v
+                             ->Path.relativize(~cwd=p->Package.path)
+                             ->Path.pp
+                           )
+                         ->List.toArray
+                         ->Set.String.fromArray,
+                         p
+                         ->Pack.gatherFilesFromJson
+                         ->List.map(x =>
+                             x
+                             ->Pack.toString
+                             ->Path.v
+                             ->Path.relativize(~cwd=p->Package.path)
+                             ->Path.pp
+                           )
+                         ->List.toArray
+                         ->Set.String.fromArray,
+                       )
+                       ->Set.String.toArray
+                     ) {
+                     | [||] => React.null
+                     | arr =>
+                       <Box flexDirection="column">
+                         <Border>
+                           <Color cyan=true bold=true>
+                             "missing files:"->React.string
+                           </Color>
+                         </Border>
+                         {arr
+                          ->Array.map(a =>
+                              <Border key=a>
+                                <Color red=true>
+                                  {("\t" ++ a)->React.string}
+                                </Color>
+                              </Border>
+                            )
+                          ->React.array}
+                       </Box>
+                     }}
                   </Box>
                 | _ => React.null
                 }}

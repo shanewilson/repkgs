@@ -1,8 +1,11 @@
 {
   "name": "@workspace-b/package-b",
   "version": "1.0.0",
+  "bin": "bin/bin.js",
+  "main": "main/main.js",
   "files": [
-    "*.ts",
-    "*.js"
+    "*.js",
+    "src",
+    "main/main.js"
   ]
 }
