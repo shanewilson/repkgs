@@ -1,5 +1,4 @@
-type t = string;
-type t2 = {
+type t = {
   patterns: List.t(string),
   cwd: Path.t,
 };
@@ -44,24 +43,3 @@ let vmatchesManifest = (globs, ~manifest) => {
   ->vmatches
   ->List.map(Path.parent);
 };
-
-let matches = (patterns, ~cwd) => {
-  patterns
-  ->List.toArray
-  ->FastGlob.sync(FastGlob.t(~cwd=cwd->Path.toString, ~absolute=false, ()))
-  ->List.fromArray;
-};
-
-let matchesPaths = (xs, ~cwd) => {
-  xs
-  ->List.map(Path.relativize(~cwd))
-  ->List.map(Path.toString)
-  ->matches(~cwd)
-  ->List.map(p => cwd->Path.append(p->Path.v));
-};
-
-let matchesPackages = (xs, ~cwd) =>
-  xs
-  ->List.map(p => cwd->Path.append(p->Path.v)->PackageJson.path)
-  ->matchesPaths(~cwd)
-  ->List.map(Path.parent);

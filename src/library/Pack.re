@@ -66,15 +66,7 @@ let parseImports = paths =>
           | Ok(json) =>
             json->AST.decode.body
             ->List.fromArray
-            ->List.map(ast
-                // TODO this needs to be a real thing
-                =>
-                  switch (ast.type_) {
-                  | "ImportDeclaration" =>
-                    ast.source->Option.getExn.value->Option.getExn
-                  | _ => ""
-                  }
-                )
+            ->List.map(AST.parseRequires)
             ->List.map(x => x->v(~path=p))
           | Error(_) => []
           }
