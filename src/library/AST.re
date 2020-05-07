@@ -12,6 +12,7 @@ type t = {
   arguments: option(list(t)),
   declarations: option(list(t)),
   init: option(t),
+  property: option(t),
 };
 
 let decode = json => {
@@ -21,14 +22,16 @@ let decode = json => {
   };
 };
 
-let rec parseRequires = (~ctx=None, oast): list(string) => {
-  switch (oast, ctx) {
+let rec parseRequires = (~octx=None, oast): list(string) => {
+  switch (oast, octx) {
   | (None, _) => []
   | (Some(ast), Some(ctx)) =>
     switch (ast.type_) {
+    | "MemberExpression" => ast.property |> parseRequires(~octx)
     | "Identifier" =>
       switch (ast.name->Option.getWithDefault("")) {
-      | "require" =>
+      | "require"
+      | "resolve" =>
         switch (ctx.arguments) {
         | Some(aa) => aa->List.map(t => Some(t)->parseRequires)->List.flatten
         | None => []
@@ -37,11 +40,11 @@ let rec parseRequires = (~ctx=None, oast): list(string) => {
       }
     | _ => []
     }
-  | (Some(ast), _) =>
+  | (Some(ast), None) =>
     switch (ast.type_) {
     | "Literal" => [ast.value->Option.getWithDefault("")]
     | "ImportDeclaration" => ast.source->parseRequires
-    | "CallExpression" => ast.callee |> parseRequires(~ctx=Some(ast))
+    | "CallExpression" => ast.callee->parseRequires(~octx=oast, _)
     | "ExpressionStatement" => ast.expression->parseRequires
     | "VariableDeclarator" => ast.init->parseRequires
     | "VariableDeclaration" =>
