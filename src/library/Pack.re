@@ -66,7 +66,8 @@ let parseImports = paths =>
           | Ok(json) =>
             json->AST.decode.body
             ->List.fromArray
-            ->List.map(AST.parseRequires)
+            ->List.map(x => Some(x)->AST.parseRequires)
+            ->List.flatten
             ->List.map(x => x->v(~path=p))
           | Error(_) => []
           }

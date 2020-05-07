@@ -9,8 +9,8 @@ type t = {
   expression: option(t),
   callee: option(t),
   name: option(string),
-  arguments: option(array(t)),
-  declarations: option(array(t)),
+  arguments: option(list(t)),
+  declarations: option(list(t)),
   init: option(t),
 };
 
@@ -21,91 +21,35 @@ let decode = json => {
   };
 };
 
-let parseRequires = ast => {
-  switch (ast.type_) {
-  | "ImportDeclaration" =>
-    switch (ast.source) {
-    | Some(s) =>
-      switch (s.value) {
-      | Some(v) => v
-      | None => ""
-      }
-    | None => ""
-    }
-  | "ExpressionStatement" =>
-    switch (ast.expression) {
-    | Some(e) =>
-      switch (e.callee) {
-      | Some(c) =>
-        switch (c.type_) {
-        | "Identifier" =>
-          switch (c.name) {
-          | Some(n) =>
-            switch (n) {
-            | "require" =>
-              switch (e.arguments) {
-              | Some(aa) =>
-                switch (aa[0]) {
-                | Some(a) =>
-                  switch (a.value) {
-                  | Some(v) => v
-                  | None => ""
-                  }
-                | None => ""
-                }
-              | None => ""
-              }
-            | _ => ""
-            }
-          | None => ""
-          }
-        | _ => ""
+let rec parseRequires = (~ctx=None, oast): list(string) => {
+  switch (oast, ctx) {
+  | (None, _) => []
+  | (Some(ast), Some(ctx)) =>
+    switch (ast.type_) {
+    | "Identifier" =>
+      switch (ast.name->Option.getWithDefault("")) {
+      | "require" =>
+        switch (ctx.arguments) {
+        | Some(aa) => aa->List.map(t => Some(t)->parseRequires)->List.flatten
+        | None => []
         }
-      | None => ""
+      | _ => []
       }
-    | None => ""
+    | _ => []
     }
-  | "VariableDeclaration" =>
-    switch (ast.declarations) {
-    | Some(ds) =>
-      switch (ds[0]) {
-      | Some(d) =>
-        switch (d.init) {
-        | Some(e) =>
-          switch (e.callee) {
-          | Some(c) =>
-            switch (c.type_) {
-            | "Identifier" =>
-              switch (c.name) {
-              | Some(n) =>
-                switch (n) {
-                | "require" =>
-                  switch (e.arguments) {
-                  | Some(aa) =>
-                    switch (aa[0]) {
-                    | Some(a) =>
-                      switch (a.value) {
-                      | Some(v) => v
-                      | None => ""
-                      }
-                    | None => ""
-                    }
-                  | None => ""
-                  }
-                | _ => ""
-                }
-              | None => ""
-              }
-            | _ => ""
-            }
-          | None => ""
-          }
-        | None => ""
-        }
-      | None => ""
+  | (Some(ast), _) =>
+    switch (ast.type_) {
+    | "Literal" => [ast.value->Option.getWithDefault("")]
+    | "ImportDeclaration" => ast.source->parseRequires
+    | "CallExpression" => ast.callee |> parseRequires(~ctx=Some(ast))
+    | "ExpressionStatement" => ast.expression->parseRequires
+    | "VariableDeclarator" => ast.init->parseRequires
+    | "VariableDeclaration" =>
+      switch (ast.declarations) {
+      | Some(ds) => ds->List.map(t => Some(t)->parseRequires)->List.flatten
+      | None => []
       }
-    | None => ""
+    | _ => []
     }
-  | _ => ""
   };
 };
