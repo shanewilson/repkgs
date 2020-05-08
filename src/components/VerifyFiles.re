@@ -160,34 +160,21 @@ let make =
                           ->React.array}
                        </Box>
                      }}
-                    {switch (
+                    {let files = p->Pack.gatherFilesFromJson;
+                     let imports = files->Pack.findImports;
+                     switch (
                        Set.String.diff(
-                         p
-                         ->Pack.gatherFilesFromJson
-                         ->Pack.findImports
+                         imports
                          ->List.keep(
                              fun
                              | Local(_) => true
                              | _ => false,
                            )
-                         ->List.map(x =>
-                             x
-                             ->Pack.toString
-                             ->Path.v
-                             ->Path.relativize(~cwd=p->Package.path)
-                             ->Path.pp
-                           )
+                         ->List.map(Pack.pp(~cwd=p->Package.path))
                          ->List.toArray
                          ->Set.String.fromArray,
-                         p
-                         ->Pack.gatherFilesFromJson
-                         ->List.map(x =>
-                             x
-                             ->Pack.toString
-                             ->Path.v
-                             ->Path.relativize(~cwd=p->Package.path)
-                             ->Path.pp
-                           )
+                         files
+                         ->List.map(Pack.pp(~cwd=p->Package.path))
                          ->List.toArray
                          ->Set.String.fromArray,
                        )
@@ -198,7 +185,46 @@ let make =
                        <Box flexDirection="column">
                          <Border>
                            <Color cyan=true bold=true>
-                             "missing files:"->React.string
+                             "required files not in pack:"->React.string
+                           </Color>
+                         </Border>
+                         {arr
+                          ->Array.map(a =>
+                              <Border key=a>
+                                <Color red=true>
+                                  {("\t" ++ a)->React.string}
+                                </Color>
+                              </Border>
+                            )
+                          ->React.array}
+                       </Box>
+                     }}
+                    {let files = p->Pack.gatherFilesFromJson;
+                     let imports = files->Pack.findImports;
+                     switch (
+                       Set.String.diff(
+                         imports
+                         ->List.keep(
+                             fun
+                             | Unresolved(_) => true
+                             | _ => false,
+                           )
+                         ->List.map(Pack.pp(~cwd=p->Package.path))
+                         ->List.toArray
+                         ->Set.String.fromArray,
+                         files
+                         ->List.map(Pack.pp(~cwd=p->Package.path))
+                         ->List.toArray
+                         ->Set.String.fromArray,
+                       )
+                       ->Set.String.toArray
+                     ) {
+                     | [||] => React.null
+                     | arr =>
+                       <Box flexDirection="column">
+                         <Border>
+                           <Color cyan=true bold=true>
+                             "broken imports:"->React.string
                            </Color>
                          </Border>
                          {arr

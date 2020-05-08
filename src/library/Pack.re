@@ -23,6 +23,8 @@ let toString =
   | Unresolved(p) => p->Path.toString
   | External(s) => s;
 
+let pp = (x, ~cwd) => x->toString->Path.v->Path.relativize(~cwd)->Path.pp;
+
 let gatherFilesFromJson = (pkg: Package.t): List.t(t) => {
   let path = pkg->Package.path;
   let pjson = pkg->Package.packageJson;
