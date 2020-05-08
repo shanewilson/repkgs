@@ -54,6 +54,10 @@ let gatherFilesFromJson = (pkg: Package.t): List.t(t) => {
     })
   ->Glob.v(~cwd=path)
   ->Glob.vmatch
+  ->List.keep(p
+      // This is just until I figure out a nice way to deal with src files like jsx/tsx/ts
+      // I want it to make sense rather than just be a shotgun approach of file exts
+      => p->Path.toString->Js.String2.endsWith(".js"))
   ->List.map(x => Local(x));
 };
 
