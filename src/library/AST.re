@@ -18,7 +18,8 @@ type t = {
 let decode = json => {
   switch (json->t_decode) {
   | Ok(ast) => ast
-  | Error(_) => Js.Json.parseExn("{}") |> t_decode |> Result.getExn
+  | Error(_) =>
+    Js.Json.parseExn("{\"type\": \"Error\"}") |> t_decode |> Result.getExn
   };
 };
 
@@ -29,9 +30,9 @@ let rec parseRequires = (~octx=None, oast): list(string) => {
     switch (ast.type_) {
     | "MemberExpression" => ast.property |> parseRequires(~octx)
     | "Identifier" =>
-      switch (ast.name->Option.getWithDefault("")) {
-      | "require"
-      | "resolve" =>
+      switch (ast.name) {
+      | Some("require")
+      | Some("resolve") =>
         switch (ctx.arguments) {
         | Some(aa) => aa->List.map(t => Some(t)->parseRequires)->List.flatten
         | None => []
@@ -42,7 +43,11 @@ let rec parseRequires = (~octx=None, oast): list(string) => {
     }
   | (Some(ast), None) =>
     switch (ast.type_) {
-    | "Literal" => [ast.value->Option.getWithDefault("")]
+    | "Literal" =>
+      switch (ast.value) {
+      | Some(v) => [v]
+      | None => []
+      }
     | "ImportDeclaration" => ast.source->parseRequires
     | "CallExpression" => ast.callee->parseRequires(~octx=oast, _)
     | "ExpressionStatement" => ast.expression->parseRequires
