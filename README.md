@@ -1,5 +1,5 @@
 <h1 align="center" border="none">
-  re|pkgs
+  Repkgs
   <br/>
   <br/>
   📦
@@ -8,122 +8,38 @@
 </h1>
 
 <p align="center">
-  Create tool agnostic monorepo workflows
+  verifying the correctness of your published npm packages
 </p>
 
 <p align="center">
   <img alt="Build status" src="https://github.com/shanewilson/repkgs/workflows/CI/badge.svg">
 </p>
 
-## What is this?
+- [What is Repkgs](#what-is-repkgs)
+- [Validate Packages](#validate-packages)
+  - [Problem - missing `bin` file](#problem-missing-bin-file)
+  - [Problem - required files not in bundle](#problem-required-files-not-in-bundle)
 
-Adds a common interface to running commands in a monorepo that is compatible with Yarn v1 and v2 Workspaces, Pnpm and Rush.
+## What is Repkgs?
 
-#### Yarn v2.x nested workspaces
+Repkgs focuses on verifying the correctness of your packages by checking for missing files and dependencies in packages.
 
-```sh
-❯ repkgs  --cwd __fixtures__/yarn_v2 -v --include-worktree
-RePkgs.exe: [INFO] Detected workspace manager: Yarn
-@yarn-v2/worktree (root)
-@workspace-a/worktree (worktree)
-@workspace-a/package-a
-@workspace-a/package-b
-@workspace-b/worktree (worktree)
-@workspace-b/package-a
-@workspace-b/package-b
-```
+Repkgs works for single and multi-repos and adds a common interface for running commands against projects using Yarn Workspaces, Yarn v2 Nested Workspaces, Lerna, Pnpm and Rush.
 
-#### Yarn v1.x workspaces
+## Validate Packages
 
-```sh
-❯ repkgs list --cwd __fixtures__/yarn_v1 -v
-[INFO] Detected workspace manager: Yarn
-@workspace-a/package-a
-@workspace-a/package-b
-@workspace-b/package-a
-@workspace-b/package-b
-```
+### Problem: missing `bin` file
 
-#### Pnpm
+A package can break if the `bin` or `main` field does not point to the right location. If your project has a build step it is very easy for the paths listed in your `package.json` to point to nothing.
 
-```sh
-❯ repkgs list --cwd __fixtures__/pnpm -v --include-worktree
-[INFO] Detected workspace manager: Pnpm
-@pnpm/worktree (root)
-@workspace-a/package-a
-@workspace-a/package-b
-@workspace-b/package-a
-@workspace-b/package-b
-```
+#### How Repkgs helps
 
-#### Rush
+Repkgs will run checks against the file paths found in the `package.json` to make sure those files exists and protect you from publishing a broken package.
 
-```sh
-❯ repkgs list --cwd __fixtures__/rush -v
-[INFO] Detected workspace manager: Rush
-@workspace-a/package-a
-@workspace-a/package-b
-@workspace-b/package-a
-@workspace-b/package-b
-```
+### Problem: required files not in bundle
 
+Following best practices and setting the `files` field to keep your package size down can easily cause required files to be left out of your published package.
 
-## Development
+#### How Repkgs helps
 
-```
-❯ esy install
-❯ esy
-```
-
-#### CLI
-
-```
-❯ esy start list --cwd __fixtures__/yarn
-@yarn/worktree
-@workspace-a/worktree
-@workspace-a/package-a
-@workspace-a/package-b
-@workspace-b/worktree
-@workspace-b/package-a
-@workspace-b/package-b
-```
-
-#### Tests
-
-```
-❯ esy test
-```
-
-
-### Bucklescript
-
-#### Development
-
-```
-❯ yarn install
-❯ yarn clean && yarn build -w
-```
-
-#### CLI
-
-```
-❯ yarn repkgs list --cwd __fixtures__/berry
-yarn run v1.21.1
-$ node -r esm ./src/RepkgsCli.bs.js list --cwd __fixtures__/berry
-verbosity = normal
-cwd = __fixtures__/berry
-@workspace-a/package-a
-@workspace-a/package-b
-@workspace-a/worktree
-@workspace-b/package-a
-@workspace-b/package-b
-@workspace-b/worktree
-@berry/worktree
-✨  Done in 0.65s.
-```
-
-#### Tests
-
-```
-❯ yarn test --watch
-```
+Repkgs will start with the patterns found in the `files` field of your `package.json` and recursively find all imported files. Any imported files not found in the bundle will be surfaced to protect you from publishing a broken package.
