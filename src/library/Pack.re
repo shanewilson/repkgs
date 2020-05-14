@@ -1,31 +1,4 @@
-type t =
-  | Local(Path.t)
-  | Unresolved(Path.t)
-  | External(string);
-
-let v = (import, ~path) =>
-  import->Js.String2.startsWith(".")
-    ? {
-      let filepath = path->Path.parent->Path.addSeg(import);
-      filepath
-      ->RequireLocal.resolve
-      ->(
-          fun
-          | Ok(p) => Local(p)
-          | _ => Unresolved(filepath)
-        );
-    }
-    : External(import);
-
-let toString =
-  fun
-  | Local(p)
-  | Unresolved(p) => p->Path.toString
-  | External(s) => s;
-
-let pp = (x, ~cwd) => x->toString->Path.v->Path.relativize(~cwd)->Path.pp;
-
-let gatherFilesFromJson = (pkg: Package.t): List.t(t) => {
+let gatherFilesFromJson = pkg => {
   let path = pkg->Package.path;
   let pjson = pkg->Package.packageJson;
 
@@ -58,14 +31,14 @@ let gatherFilesFromJson = (pkg: Package.t): List.t(t) => {
       // This is just until I figure out a nice way to deal with src files like jsx/tsx/ts
       // I want it to make sense rather than just be a shotgun approach of file exts
       => p->Path.toString->Js.String2.endsWith(".js"))
-  ->List.map(x => Local(x));
+  ->List.map(x => ImportSet.Import.v(x->Path.toString, ~path))
+  ->ImportSet.fromList;
 };
-
 let parseImports = paths =>
   paths
   ->List.map(t => {
       switch (t) {
-      | Local(p) =>
+      | ImportSet.Import.Local(p) =>
         switch (p->Fs.read) {
         | Ok(s) =>
           switch (s->FlowParser.parse) {
@@ -74,7 +47,7 @@ let parseImports = paths =>
             ->List.fromArray
             ->List.map(x => Some(x)->AST.parseRequires)
             ->List.flatten
-            ->List.map(x => x->v(~path=p))
+            ->List.map(x => x->ImportSet.Import.v(~path=p))
           | Error(_) => []
           }
         | Error(_) => []
@@ -83,18 +56,19 @@ let parseImports = paths =>
       }
     })
   ->List.flatten;
-// ->List.flatten
-
 let findImports = paths => {
-  let r = paths->parseImports;
+  let r = paths->ImportSet.toList->parseImports;
 
-  r->(
-       x =>
-         switch (x) {
-         | [] => []
-         | xs => xs->List.concat(xs->parseImports)
-         }
-     );
+  r
+  ->(
+      x =>
+        switch (x) {
+        | [] => []
+        | xs => xs->List.concat(xs->parseImports)
+        }
+    )
+  ->ImportSet.fromList;
 };
 
-let keepLocalImports = List.keep(_, s => s->Js.String2.startsWith("."));
+let filesInPack = x => x;
+let filesRequiredByPack = x => x;

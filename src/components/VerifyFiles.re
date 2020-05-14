@@ -163,22 +163,11 @@ let make =
                     {let files = p->Pack.gatherFilesFromJson;
                      let imports = files->Pack.findImports;
                      switch (
-                       Set.String.diff(
-                         imports
-                         ->List.keep(
-                             fun
-                             | Local(_) => true
-                             | _ => false,
-                           )
-                         ->List.map(Pack.pp(~cwd=p->Package.path))
-                         ->List.toArray
-                         ->Set.String.fromArray,
-                         files
-                         ->List.map(Pack.pp(~cwd=p->Package.path))
-                         ->List.toArray
-                         ->Set.String.fromArray,
+                       ImportSet.diff(
+                         imports->ImportSet.keepLocalImports,
+                         files,
                        )
-                       ->Set.String.toArray
+                       ->ImportSet.toArray
                      ) {
                      | [||] => React.null
                      | arr =>
@@ -190,9 +179,15 @@ let make =
                          </Border>
                          {arr
                           ->Array.map(a =>
-                              <Border key=a>
+                              <Border key={a->ImportSet.Import.toString}>
                                 <Color red=true>
-                                  {("\t" ++ a)->React.string}
+                                  {(
+                                     "\t"
+                                     ++ a->ImportSet.Import.pp(
+                                          ~cwd=p->Package.path,
+                                        )
+                                   )
+                                   ->React.string}
                                 </Color>
                               </Border>
                             )
@@ -202,22 +197,11 @@ let make =
                     {let files = p->Pack.gatherFilesFromJson;
                      let imports = files->Pack.findImports;
                      switch (
-                       Set.String.diff(
-                         imports
-                         ->List.keep(
-                             fun
-                             | Unresolved(_) => true
-                             | _ => false,
-                           )
-                         ->List.map(Pack.pp(~cwd=p->Package.path))
-                         ->List.toArray
-                         ->Set.String.fromArray,
-                         files
-                         ->List.map(Pack.pp(~cwd=p->Package.path))
-                         ->List.toArray
-                         ->Set.String.fromArray,
+                       ImportSet.diff(
+                         imports->ImportSet.keepBrokenImports,
+                         files,
                        )
-                       ->Set.String.toArray
+                       ->ImportSet.toArray
                      ) {
                      | [||] => React.null
                      | arr =>
@@ -229,9 +213,15 @@ let make =
                          </Border>
                          {arr
                           ->Array.map(a =>
-                              <Border key=a>
+                              <Border key={a->ImportSet.Import.toString}>
                                 <Color red=true>
-                                  {("\t" ++ a)->React.string}
+                                  {(
+                                     "\t"
+                                     ++ a->ImportSet.Import.pp(
+                                          ~cwd=p->Package.path,
+                                        )
+                                   )
+                                   ->React.string}
                                 </Color>
                               </Border>
                             )
