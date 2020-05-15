@@ -7,7 +7,7 @@ type t = {
   main: List.t(string),
   bin: List.t(string),
   files: List.t(string),
-  errorsFound: bool,
+  errors: int,
   packed,
 };
 let v: Package.t => t;

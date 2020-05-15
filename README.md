@@ -43,3 +43,7 @@ Following best practices and setting the `files` field to keep your package size
 #### How Repkgs helps
 
 Repkgs will start with the patterns found in the `files` field of your `package.json` and recursively find all imported files. Any imported files not found in the bundle will be surfaced to protect you from publishing a broken package.
+
+### Example Output
+
+![Verify Files CLI Image](./images/verify-files.png)

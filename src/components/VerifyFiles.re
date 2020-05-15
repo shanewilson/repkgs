@@ -62,7 +62,7 @@ let make =
           }
         )
       ->List.map(VerifiedPackage.v)
-      ->List.keep(x => x.errorsFound);
+      ->List.keep(x => x.errors > 0);
 
     <Box flexDirection="column">
       <Color whiteBright=true>
@@ -74,14 +74,15 @@ let make =
       </Color>
       {verifiedPackages
        ->List.map(vp => {
-           switch (vp.errorsFound) {
-           | false => React.null
-           | true =>
+           switch (vp.errors) {
+           | 0 => React.null
+           | _ =>
              <Box
                key={vp.pkg->Package.name}
                flexDirection="column"
                marginBottom=1>
                <Box>
+                 {js|📦  |js}->React.string
                  <Color white=true>
                    {vp.pkg->Package.name->React.string}
                  </Color>
