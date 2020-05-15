@@ -46,4 +46,4 @@ Repkgs will start with the patterns found in the `files` field of your `package.
 
 ### Example Output
 
-![Verify Files CLI Image](./images/verify-files.png)
+<img width="500" src="./images/verify-files.png">
