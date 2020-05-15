@@ -1,5 +1,7 @@
 {
   "name": "@workspace-a/package-b",
   "version": "1.0.0",
-  "bin": "./binB.ts"
+  "files": [
+    "beep"
+  ]
 }

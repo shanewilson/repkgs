@@ -2,7 +2,7 @@ module Error = {
   type t = [ | `ManagerManifestMissingPatterns(Path.t)];
 };
 
-type t = List.t(Glob.t2);
+type t = List.t(Glob.t);
 
 module type TPatterns = {let readPatterns: t => t;};
 

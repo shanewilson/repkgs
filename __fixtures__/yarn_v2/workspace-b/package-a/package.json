@@ -1,7 +1,9 @@
 {
   "name": "@workspace-b/package-a",
   "version": "1.0.0",
-  "main": "index.js",
+  "files": [
+    "tsconfig.json"
+  ],
   "dependencies": {
     "beep": "1.0.0",
     "@workspace-a/package-a": "*"
