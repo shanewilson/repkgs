@@ -6,6 +6,6 @@
   "files": [
     "*.js",
     "src",
-    "main/main.js"
+    "main/*"
   ]
 }

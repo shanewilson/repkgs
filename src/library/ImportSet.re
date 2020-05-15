@@ -40,7 +40,7 @@ module Comparator =
   });
 
 type t = Set.t(Comparator.t, Comparator.identity);
-
+let empty = Set.make(~id=(module Comparator));
 let fromArray = Set.fromArray(~id=(module Comparator));
 let fromList = x => x->List.toArray->fromArray;
 let toArray = Set.toArray;

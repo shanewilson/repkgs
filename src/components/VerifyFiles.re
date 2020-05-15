@@ -44,196 +44,72 @@ let make =
             b->Package.path->Path.toString,
           )
         );
+    let verifiedPackages =
+      packages
+      ->List.keep(
+          fun
+          | Publishable(_) => true
+          | _ => false,
+        )
+      ->List.keep(p =>
+          switch (
+            p->Package.packageJson->PackageJson.main,
+            p->Package.packageJson->PackageJson.bin,
+            p->Package.packageJson->PackageJson.files,
+          ) {
+          | (None, None, ["*"]) => false
+          | _ => true
+          }
+        )
+      ->List.map(VerifiedPackage.v)
+      ->List.keep(x => x.errorsFound);
+
     <Box flexDirection="column">
-      {packages
-       ->List.map(p =>
-           switch (
-             p->Package.packageJson->PackageJson.main,
-             p->Package.packageJson->PackageJson.bin,
-             p->Package.packageJson->PackageJson.files,
-           ) {
-           | (None, None, ["*"]) => React.null
-           | _ =>
-             <Box key={p->Package.name} flexDirection="column" marginBottom=1>
+      <Color whiteBright=true>
+        "\nFound "->React.string
+        <Color bold=true>
+          {verifiedPackages->List.length->Int.toString->React.string}
+        </Color>
+        " packages with errors\n\n"->React.string
+      </Color>
+      {verifiedPackages
+       ->List.map(vp => {
+           switch (vp.errorsFound) {
+           | false => React.null
+           | true =>
+             <Box
+               key={vp.pkg->Package.name}
+               flexDirection="column"
+               marginBottom=1>
                <Box>
-                 <Color white=true> {p->Package.name->React.string} </Color>
+                 <Color white=true>
+                   {vp.pkg->Package.name->React.string}
+                 </Color>
                </Box>
                <Border />
-               {switch (p) {
-                | Publishable(pkg) =>
-                  <Box flexDirection="column">
-                    {switch (pkg.packageJson->PackageJson.main) {
-                     | Some(f) =>
-                       <Border>
-                         <Color cyan=true bold=true>
-                           "main: "->React.string
-                         </Color>
-                         <Color white=true>
-                           {(f ++ " ..... ")->React.string}
-                         </Color>
-                         {switch (pkg.path->Path.addSeg(f)->Fs.exists) {
-                          | Ok(_) =>
-                            <Color green=true> "found"->React.string </Color>
-                          | Error(_) =>
-                            <Color red=true> "missing"->React.string </Color>
-                          }}
-                       </Border>
-                     | None => React.null
-                     }}
-                    {switch (pkg.packageJson->PackageJson.bin) {
-                     | Some(arr) =>
-                       <Box flexDirection="column">
-                         <Border>
-                           <Color cyan=true bold=true>
-                             "bin:"->React.string
-                           </Color>
-                         </Border>
-                         {arr
-                          ->List.toArray
-                          ->Array.map(f =>
-                              <Border key=f>
-                                <Color white=true>
-                                  {("\t" ++ f ++ " .....  ")->React.string}
-                                </Color>
-                                {switch (pkg.path->Path.addSeg(f)->Fs.exists) {
-                                 | Ok(_) =>
-                                   <Color green=true>
-                                     "found"->React.string
-                                   </Color>
-                                 | Error(_) =>
-                                   <Color red=true>
-                                     "missing"->React.string
-                                   </Color>
-                                 }}
-                              </Border>
-                            )
-                          ->React.array}
-                       </Box>
-                     | None => React.null
-                     }}
-                    {switch (pkg.packageJson->PackageJson.files) {
-                     | ["*"] => React.null
-                     | arr =>
-                       <Box flexDirection="column">
-                         <Border>
-                           <Color cyan=true bold=true>
-                             "packed files:"->React.string
-                           </Color>
-                         </Border>
-                         {arr
-                          ->List.toArray
-                          ->Array.map(fpat =>
-                              <Border key=fpat>
-                                <Color white=true>
-                                  {("\t" ++ fpat ++ " .....  ")->React.string}
-                                </Color>
-                                {switch (
-                                   pkg.path->Path.addSeg(fpat)->Fs.exists
-                                 ) {
-                                 | Ok(_) =>
-                                   <Color green=true>
-                                     "found"->React.string
-                                   </Color>
-                                 | Error(_) =>
-                                   switch (
-                                     [fpat]
-                                     ->Glob.v(~cwd=pkg.path)
-                                     ->Glob.vmatch
-                                   ) {
-                                   | [] =>
-                                     <Color red=true>
-                                       "no matches"->React.string
-                                     </Color>
-                                   | xs =>
-                                     <Color green=true>
-                                       {(
-                                          "found "
-                                          ++ xs->List.length->Int.toString
-                                          ++ " matches"
-                                        )
-                                        ->React.string}
-                                     </Color>
-                                   }
-                                 }}
-                              </Border>
-                            )
-                          ->React.array}
-                       </Box>
-                     }}
-                    {let files = p->Pack.gatherFilesFromJson;
-                     let imports = files->Pack.findImports;
-                     switch (
-                       ImportSet.diff(
-                         imports->ImportSet.keepLocalImports,
-                         files,
-                       )
-                       ->ImportSet.toArray
-                     ) {
-                     | [||] => React.null
-                     | arr =>
-                       <Box flexDirection="column">
-                         <Border>
-                           <Color cyan=true bold=true>
-                             "required files not in pack:"->React.string
-                           </Color>
-                         </Border>
-                         {arr
-                          ->Array.map(a =>
-                              <Border key={a->ImportSet.Import.toString}>
-                                <Color red=true>
-                                  {(
-                                     "\t"
-                                     ++ a->ImportSet.Import.pp(
-                                          ~cwd=p->Package.path,
-                                        )
-                                   )
-                                   ->React.string}
-                                </Color>
-                              </Border>
-                            )
-                          ->React.array}
-                       </Box>
-                     }}
-                    {let files = p->Pack.gatherFilesFromJson;
-                     let imports = files->Pack.findImports;
-                     switch (
-                       ImportSet.diff(
-                         imports->ImportSet.keepBrokenImports,
-                         files,
-                       )
-                       ->ImportSet.toArray
-                     ) {
-                     | [||] => React.null
-                     | arr =>
-                       <Box flexDirection="column">
-                         <Border>
-                           <Color cyan=true bold=true>
-                             "broken imports:"->React.string
-                           </Color>
-                         </Border>
-                         {arr
-                          ->Array.map(a =>
-                              <Border key={a->ImportSet.Import.toString}>
-                                <Color red=true>
-                                  {(
-                                     "\t"
-                                     ++ a->ImportSet.Import.pp(
-                                          ~cwd=p->Package.path,
-                                        )
-                                   )
-                                   ->React.string}
-                                </Color>
-                              </Border>
-                            )
-                          ->React.array}
-                       </Box>
-                     }}
-                  </Box>
-                | _ => React.null
-                }}
+               <Box flexDirection="column">
+                 <VerifyFilesMatchPaths name="main:" field={vp.main} />
+                 <VerifyFilesMatchPaths name="bin:" field={vp.bin} />
+                 <VerifyFilesMatchPaths
+                   name="packed files:"
+                   field={vp.files}
+                 />
+                 <VerifyFilesMissingImports
+                   name="required files not in pack:"
+                   imports={vp.packed.imports->ImportSet.keepLocalImports}
+                   files={vp.packed.files}
+                   path={vp.pkg->Package.path}
+                 />
+                 <VerifyFilesMissingImports
+                   name="broken imports:"
+                   imports={vp.packed.imports->ImportSet.keepBrokenImports}
+                   files={vp.packed.files}
+                   path={vp.pkg->Package.path}
+                 />
+               </Box>
              </Box>
            }
-         )
+         })
        ->List.toArray
        ->ReasonReact.array}
     </Box>;

@@ -17,20 +17,20 @@ let gatherFilesFromJson = pkg => {
       switch (path->Path.addSeg(s)->Fs.v) {
       | File(_) => s
       // can I use / for this?
-      | Dir(_) => s ++ "/**"
+      // This is just until I figure out a nice way
+      // to deal with src files like jsx/tsx/ts
+      // I want it to make sense rather than just
+      // be a shotgun approach of file exists
+      | Dir(_) => s ++ "/**/*.js"
       | DNE(_) =>
         switch (s) {
-        | "*" => "**"
+        | "*" => "**/*.js"
         | pat => pat
         }
       }
     })
   ->Glob.v(~cwd=path)
   ->Glob.vmatch
-  ->List.keep(p
-      // This is just until I figure out a nice way to deal with src files like jsx/tsx/ts
-      // I want it to make sense rather than just be a shotgun approach of file exts
-      => p->Path.toString->Js.String2.endsWith(".js"))
   ->List.map(x => ImportSet.Import.v(x->Path.toString, ~path))
   ->ImportSet.fromList;
 };
@@ -41,6 +41,9 @@ let parseImports = paths =>
       | ImportSet.Import.Local(p) =>
         switch (p->Fs.read) {
         | Ok(s) =>
+          // obviously slow on big files
+          // should make custom require/import
+          // parser that ignores everything else
           switch (s->FlowParser.parse) {
           | Ok(json) =>
             json->AST.decode.body

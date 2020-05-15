@@ -8,6 +8,7 @@ module Import: {
   let pp: (t, ~cwd: Path.t) => string;
 };
 type t;
+let empty: t;
 let fromArray: array(Import.t) => t;
 let fromList: List.t(Import.t) => t;
 let toArray: t => array(Import.t);
