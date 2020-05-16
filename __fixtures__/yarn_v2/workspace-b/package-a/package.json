@@ -2,6 +2,8 @@
   "name": "@workspace-b/package-a",
   "version": "1.0.0",
   "files": [
+    "index.js",
+    "index.jss",
     "tsconfig.json"
   ],
   "dependencies": {

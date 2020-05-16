@@ -59,6 +59,19 @@ let pp =
       "path": p.path->Path.pp,
       "packageJson": p.packageJson,
     };
+let dependencies =
+  fun
+  | Publishable(p)
+  | Private(p) =>
+    switch (p.packageJson->PackageJson.dependencies) {
+    | Some(xs) =>
+      xs
+      ->Js.Dict.keys
+      ->Array.map(x => ImportSet.Import.External(x))
+      ->ImportSet.fromArray
+    | None => ImportSet.empty
+    };
+
 let publish =
   fun
   | Publishable(p) => Js.log("published " ++ p.name)
