@@ -38,8 +38,8 @@ let parseImports = paths =>
   paths
   ->List.map(t => {
       switch (t) {
-      | ImportSet.Import.Local(p) =>
-        switch (p->Fs.read) {
+      | ImportSet.Import.Local(t) =>
+        switch (t.target->Fs.read) {
         | Ok(s) =>
           // obviously slow on big files
           // should make custom require/import
@@ -50,7 +50,7 @@ let parseImports = paths =>
             ->List.fromArray
             ->List.map(x => Some(x)->AST.parseRequires)
             ->List.flatten
-            ->List.map(x => x->ImportSet.Import.v(~path=p))
+            ->List.map(x => x->ImportSet.Import.v(~path=t.target))
           | Error(_) => []
           }
         | Error(_) => []

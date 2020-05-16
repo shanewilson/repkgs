@@ -1,40 +1,57 @@
 module Import = {
+  type import = {
+    path: Path.t,
+    target: Path.t,
+    import: string,
+  };
   type t =
-    | Local(Path.t)
-    | Unresolved(Path.t)
-    | External(string);
+    | Local(import)
+    | Unresolved(import)
+    | External(import);
   let v = (import, ~path) => {
     let x = import->String.get(0);
     switch (x) {
     | '.'
     | '/' =>
-      let filePath =
+      let target =
         x === '.' ? path->Path.parent->Path.addSeg(import) : import->Path.v;
-      filePath
+      target
       ->Resolve.resolve
       ->(
           fun
-          | Ok(p) => Local(p)
-          | _ => Unresolved(filePath)
+          | Ok(resolved) => Local({path, target: resolved, import})
+          | Error(_) => Unresolved({path, target, import})
         );
     // External could also be ../../node_modules/@thing/beep
     // so need to handle that at some point
-    | _ => External(import)
+    | _ => External({path, target: Path.v(import), import})
     };
   };
-  let toString =
+  let path =
     fun
-    | Local(p)
-    | Unresolved(p) => p->Path.toString
-    | External(s) => s;
-  let pp = (x, ~cwd) => x->toString->Path.v->Path.relativize(~cwd)->Path.pp;
+    | Local(x)
+    | Unresolved(x)
+    | External(x) => x.path;
+  let import =
+    fun
+    | Local(x)
+    | Unresolved(x)
+    | External(x) => x.import;
+  let target =
+    fun
+    | Local(x)
+    | Unresolved(x)
+    | External(x) => x.target;
 };
 
 module Comparator =
   Id.MakeComparable({
     type t = Import.t;
     let cmp = (a, b) =>
-      switch (a->Import.toString, b->Import.toString) {
+      switch (
+        a->Import.target->Path.toString,
+        b->Import.target->Path.toString,
+      ) {
       | (x, y) => Pervasives.compare(x, y)
       };
   });
