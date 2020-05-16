@@ -14,6 +14,7 @@ let filename: string;
 let name: t => option(string);
 let bin: t => option(List.t(string));
 let main: t => option(string);
+let types: t => option(string);
 let files: t => List.t(string);
 let devDependencies: t => option(Js.Dict.t(string));
 let dependencies: t => option(Js.Dict.t(string));

@@ -51,16 +51,6 @@ let make =
           | Publishable(_) => true
           | _ => false,
         )
-      ->List.keep(p =>
-          switch (
-            p->Package.packageJson->PackageJson.main,
-            p->Package.packageJson->PackageJson.bin,
-            p->Package.packageJson->PackageJson.files,
-          ) {
-          | (None, None, ["*"]) => false
-          | _ => true
-          }
-        )
       ->List.map(VerifiedPackage.v)
       ->List.keep(x => x.errors > 0);
 
@@ -89,8 +79,9 @@ let make =
                </Box>
                <Border />
                <Box flexDirection="column">
-                 <VerifyFilesMatchPaths name="main:" field={vp.main} />
                  <VerifyFilesMatchPaths name="bin:" field={vp.bin} />
+                 <VerifyFilesMatchPaths name="main:" field={vp.main} />
+                 <VerifyFilesMatchPaths name="types:" field={vp.types} />
                  <VerifyFilesMatchPaths
                    name="packed files:"
                    field={vp.files}

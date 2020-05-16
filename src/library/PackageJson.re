@@ -72,6 +72,7 @@ type t = {
   private: bool,
   version: option(string),
   main: option(string),
+  types: option(string),
   [@decco.default [|"*"|]]
   files: array(string),
   bin: option(Bin.t),
@@ -90,6 +91,7 @@ let filename = "package.json";
 let name = p => p.name;
 let private_ = p => p.private ? `Private : `Public;
 let main = p => p.main;
+let types = p => p.types;
 let files = p => p.files->List.fromArray;
 let bin = p => p.bin->Option.flatMap(arr => Some(arr->List.fromArray));
 let workspaces = p => p.workspaces;

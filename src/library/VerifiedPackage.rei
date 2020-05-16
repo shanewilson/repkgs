@@ -5,6 +5,7 @@ type packed = {
 type t = {
   pkg: Package.t,
   main: List.t(string),
+  types: List.t(string),
   bin: List.t(string),
   files: List.t(string),
   errors: int,
