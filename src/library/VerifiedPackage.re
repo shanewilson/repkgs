@@ -5,6 +5,7 @@ type packed = {
 type t = {
   pkg: Package.t,
   main: List.t(string),
+  types: List.t(string),
   bin: List.t(string),
   files: List.t(string),
   errors: int,
@@ -28,6 +29,11 @@ let v = (pkg: Package.t): t => {
     | Some(x) => [x]->findMissingPaths(~path)
     | None => []
     };
+  let types =
+    switch (pkg->Package.packageJson->PackageJson.types) {
+    | Some(x) => [x]->findMissingPaths(~path)
+    | None => []
+    };
   let bin =
     switch (pkg->Package.packageJson->PackageJson.bin) {
     | Some(xs) => xs->findMissingPaths(~path)
@@ -42,12 +48,18 @@ let v = (pkg: Package.t): t => {
       let fs = pkg->Pack.gatherFilesFromJson;
       {files: fs, imports: fs->Pack.findImports};
     };
+
   {
     pkg,
     main,
+    types,
     bin,
     files,
-    errors: main->List.length + bin->List.length + files->List.length,
+    errors:
+      main->List.length
+      + types->List.length
+      + bin->List.length
+      + files->List.length,
     packed,
   };
 };
