@@ -1,11 +1,17 @@
 module Import: {
-  type import = string;
+  type import = {
+    path: Path.t,
+    target: Path.t,
+    import: string,
+  };
   type t =
-    | Local(import, Path.t)
-    | Unresolved(import, Path.t)
+    | Local(import)
+    | Unresolved(import)
     | External(import);
   let v: (string, ~path: Path.t) => t;
-  let toString: t => string;
+  let path: t => Path.t;
+  let target: t => Path.t;
+  let import: t => string;
 };
 type t;
 let empty: t;

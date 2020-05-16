@@ -1,7 +1,7 @@
 include Ink;
 
 [@react.component]
-let make = (~name, ~required, ~found) => {
+let make = (~name, ~required, ~found, ~path) => {
   switch (ImportSet.diff(required, found)->ImportSet.toArray) {
   | [||] => React.null
   | arr =>
@@ -11,9 +11,16 @@ let make = (~name, ~required, ~found) => {
       </Border>
       {arr
        ->Array.map(a =>
-           <Border key={a->ImportSet.Import.toString}>
+           <Border key={a->ImportSet.Import.target->Path.toString}>
              <Color red=true>
-               {("\t" ++ a->ImportSet.Import.toString)->React.string}
+               {(
+                  "\t"
+                  ++ a
+                     ->ImportSet.Import.target
+                     ->Path.relativize(~cwd=path)
+                     ->Path.toString
+                )
+                ->React.string}
              </Color>
            </Border>
          )

@@ -90,11 +90,7 @@ let make =
                    name="required files not in pack:"
                    required={vp.packed.imports->ImportSet.keepLocalImports}
                    found={vp.packed.files}
-                 />
-                 <VerifyFilesMissingImports
-                   name="local import does not exist:"
-                   required={vp.packed.imports->ImportSet.keepBrokenImports}
-                   found={vp.packed.files}
+                   path={vp.pkg->Package.path}
                  />
                </Box>
              </Box>
