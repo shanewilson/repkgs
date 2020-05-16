@@ -1,8 +1,8 @@
 include Ink;
 
 [@react.component]
-let make = (~name, ~imports, ~files, ~path) => {
-  switch (ImportSet.diff(imports, files)->ImportSet.toArray) {
+let make = (~name, ~required, ~found) => {
+  switch (ImportSet.diff(required, found)->ImportSet.toArray) {
   | [||] => React.null
   | arr =>
     <Box flexDirection="column">
@@ -13,7 +13,7 @@ let make = (~name, ~imports, ~files, ~path) => {
        ->Array.map(a =>
            <Border key={a->ImportSet.Import.toString}>
              <Color red=true>
-               {("\t" ++ a->ImportSet.Import.pp(~cwd=path))->React.string}
+               {("\t" ++ a->ImportSet.Import.toString)->React.string}
              </Color>
            </Border>
          )

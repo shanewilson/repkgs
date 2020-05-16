@@ -88,15 +88,13 @@ let make =
                  />
                  <VerifyFilesMissingImports
                    name="required files not in pack:"
-                   imports={vp.packed.imports->ImportSet.keepLocalImports}
-                   files={vp.packed.files}
-                   path={vp.pkg->Package.path}
+                   required={vp.packed.imports->ImportSet.keepLocalImports}
+                   found={vp.packed.files}
                  />
                  <VerifyFilesMissingImports
-                   name="broken imports:"
-                   imports={vp.packed.imports->ImportSet.keepBrokenImports}
-                   files={vp.packed.files}
-                   path={vp.pkg->Package.path}
+                   name="local import does not exist:"
+                   required={vp.packed.imports->ImportSet.keepBrokenImports}
+                   found={vp.packed.files}
                  />
                </Box>
              </Box>

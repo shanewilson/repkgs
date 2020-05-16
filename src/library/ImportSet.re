@@ -1,8 +1,9 @@
 module Import = {
+  type import = string;
   type t =
-    | Local(Path.t)
-    | Unresolved(Path.t)
-    | External(string);
+    | Local(import, Path.t)
+    | Unresolved(import, Path.t)
+    | External(import);
   let v = (import, ~path) => {
     let x = import->String.get(0);
     switch (x) {
@@ -14,8 +15,8 @@ module Import = {
       ->Resolve.resolve
       ->(
           fun
-          | Ok(p) => Local(p)
-          | _ => Unresolved(filePath)
+          | Ok(p) => Local(import, p)
+          | _ => Unresolved(import, filePath)
         );
     // External could also be ../../node_modules/@thing/beep
     // so need to handle that at some point
@@ -24,10 +25,9 @@ module Import = {
   };
   let toString =
     fun
-    | Local(p)
-    | Unresolved(p) => p->Path.toString
+    | Local(s, _)
+    | Unresolved(s, _)
     | External(s) => s;
-  let pp = (x, ~cwd) => x->toString->Path.v->Path.relativize(~cwd)->Path.pp;
 };
 
 module Comparator =
