@@ -1,31 +1,26 @@
-type paths = {
-  main: List.t(string),
-  types: List.t(string),
-  bin: List.t(string),
-  files: List.t(string),
-};
-type imports = {
-  missingLocalImports: ImportSet.t,
-  missingExternalImports: ImportSet.t,
-  unusedExternalImports: ImportSet.t,
-  brokenImports: ImportSet.t,
-};
-type inPack = {
-  files: ImportSet.t,
-  imports: ImportSet.t,
-};
-type packed = inPack;
-type t = {
-  pkg: Package.t,
-  paths,
-  imports,
-  inPack,
+type missingPaths = {
   main: List.t(string),
   types: List.t(string),
   bin: List.t(string),
   files: List.t(string),
   errors: int,
-  packed,
+};
+type imports = {
+  missingLocalImports: ImportSet.t,
+  missingExternalImports: ImportSet.t,
+  unusedExternalImports: ImportSet.t,
+  brokenLocalImports: ImportSet.t,
+  errors: int,
+};
+type inPack = {
+  files: ImportSet.t,
+  imports: ImportSet.t,
+};
+type t = {
+  pkg: Package.t,
+  missingPaths,
+  imports,
+  inPack,
 };
 let findMissingPaths = (ls, ~path) =>
   ls->List.keep(_, f =>
@@ -51,40 +46,50 @@ let v = (pkg: Package.t): t => {
   let bin = json->PackageJson.bin->getOpt(~path);
   let files = Some(json->PackageJson.files)->getOpt(~path);
 
-  let inPack =
-    switch (pkg->Package.packageJson->PackageJson.files) {
-    | ["*"] => {files: ImportSet.empty, imports: ImportSet.empty}
-    | _ =>
-      let fs = pkg->Pack.gatherFilesFromJson;
-      Js.log(fs->ImportSet.toArray);
-      Js.log(fs->Pack.findImports->ImportSet.toArray);
-      {files: fs, imports: fs->Pack.findImports};
-    };
+  let inPack = {
+    let fs = pkg->Pack.gatherFilesFromJson;
+    {files: fs, imports: fs->Pack.findImports};
+  };
+
+  let missingLocalImports =
+    ImportSet.diff(inPack.imports->ImportSet.keepLocalImports, inPack.files);
+  let brokenLocalImports =
+    ImportSet.diff(inPack.imports->ImportSet.keepBrokenImports, inPack.files);
+  let missingExternalImports =
+    ImportSet.diff(
+      inPack.imports->ImportSet.keepExternalImports,
+      pkg->Package.dependencies,
+    );
+  let unusedExternalImports =
+    ImportSet.diff(
+      pkg->Package.dependencies,
+      inPack.imports->ImportSet.keepExternalImports,
+    );
 
   {
     pkg,
     inPack,
-    paths: {
+    missingPaths: {
       main,
       types,
       bin,
       files,
+      errors:
+        main->List.length
+        + types->List.length
+        + bin->List.length
+        + files->List.length,
     },
     imports: {
-      missingLocalImports: ImportSet.empty,
-      missingExternalImports: ImportSet.empty,
-      unusedExternalImports: ImportSet.empty,
-      brokenImports: ImportSet.empty,
+      missingLocalImports,
+      missingExternalImports,
+      unusedExternalImports,
+      brokenLocalImports,
+      errors:
+        + missingLocalImports->ImportSet.size
+        + missingExternalImports->ImportSet.size
+        + unusedExternalImports->ImportSet.size
+        + brokenLocalImports->ImportSet.size,
     },
-    main,
-    types,
-    bin,
-    files,
-    errors:
-      main->List.length
-      + types->List.length
-      + bin->List.length
-      + files->List.length,
-    packed: inPack,
   };
 };

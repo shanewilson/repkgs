@@ -31,6 +31,7 @@ let gatherFilesFromJson = pkg => {
     })
   ->Glob.v(~cwd=path)
   ->Glob.vmatch
+  ->List.keep(p => p->Path.toString->Js.String2.endsWith(".js"))
   ->List.map(x => ImportSet.Import.v(x->Path.toString, ~path))
   ->ImportSet.fromList;
 };
@@ -46,9 +47,12 @@ let parseImports = paths =>
           // parser that ignores everything else
           switch (s->FlowParser.parse) {
           | Ok(json) =>
-            json->AST.decode.body
+            json->AST.programDecode.body
             ->List.fromArray
-            ->List.map(x => Some(x)->AST.parseRequires)
+            ->List.map(x => {
+                Js.log(x);
+                Some(x)->AST.parseRequires;
+              })
             ->List.flatten
             ->List.map(x => x->ImportSet.Import.v(~path=t.target))
           | Error(_) => []

@@ -23,3 +23,4 @@ let diff: (t, t) => t;
 let keepLocalImports: t => t;
 let keepExternalImports: t => t;
 let keepBrokenImports: t => t;
+let size: t => int;

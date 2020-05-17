@@ -2,8 +2,6 @@
 type t = {
   [@decco.key "type"]
   type_: string,
-  [@decco.default [||]]
-  body: array(t),
   value: option(string),
   source: option(t),
   expression: option(t),
@@ -14,16 +12,41 @@ type t = {
   init: option(t),
   property: option(t),
 };
+[@decco]
+type program = {
+  [@decco.key "type"]
+  type_: string,
+  [@decco.default [||]]
+  // body can be array or object or array ....
+  body: array(t),
+};
+
+let programDecode = json => {
+  Js.log(
+    json->NodeUtils.inspect(
+      NodeUtils.t(~colors=true, ~depth=Js.Nullable.null, ()),
+    ),
+  );
+  switch (json->program_decode) {
+  | Ok(ast) => ast
+  | Error(e) =>
+    Js.log2("e_start", e);
+    Js.Json.parseExn("{\"type\": \"Error\"}")
+    |> program_decode
+    |> Result.getExn;
+  };
+};
 
 let decode = json => {
   switch (json->t_decode) {
   | Ok(ast) => ast
-  | Error(_) =>
-    Js.Json.parseExn("{\"type\": \"Error\"}") |> t_decode |> Result.getExn
+  | Error(e) =>
+    Js.log2("e_t", e);
+    Js.Json.parseExn("{\"type\": \"Error\"}") |> t_decode |> Result.getExn;
   };
 };
 
-let rec parseRequires = (~octx=None, oast): list(string) => {
+let rec parseRequires = (~octx=None, oast: option(t)): list(string) => {
   switch (oast, octx) {
   | (None, _) => []
   | (Some(ast), Some(ctx)) =>

@@ -64,10 +64,18 @@ let dependencies =
   | Publishable(p)
   | Private(p) =>
     switch (p.packageJson->PackageJson.dependencies) {
-    | Some(xs) =>
-      xs
+    | Some(dependencies) =>
+      dependencies
       ->Js.Dict.keys
-      ->Array.map(x => ImportSet.Import.External(x))
+      ->Array.map(d
+          // dependencies should be its own set
+          =>
+            ImportSet.Import.External({
+              import: d,
+              path: p.path,
+              target: d->Path.v,
+            })
+          )
       ->ImportSet.fromArray
     | None => ImportSet.empty
     };

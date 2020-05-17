@@ -6,9 +6,8 @@ let make = (~name, ~field) => {
   | [] => React.null
   | ls =>
     <Box flexDirection="column">
-      <Border>
-        <Color cyan=true bold=true> name->React.string </Color>
-      </Border>
+      <Border />
+      <Border> <Color bold=true> name->React.string </Color> </Border>
       {ls
        ->List.map(file =>
            <Border key=file>
