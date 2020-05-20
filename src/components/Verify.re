@@ -106,7 +106,7 @@ let make =
                       />
                       <VerifyImportsSection
                         name="required files not in pack:"
-                        imports={vp.imports.missingLocalImports}
+                        imports={vp.missingPaths.missingLocalImports}
                         path={vp.pkg->Package.path}
                       />
                     </Box>

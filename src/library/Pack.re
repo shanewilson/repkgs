@@ -47,12 +47,9 @@ let parseImports = paths =>
           // parser that ignores everything else
           switch (s->FlowParser.parse) {
           | Ok(json) =>
-            json->AST.programDecode.body
+            json->AST.decode.body
             ->List.fromArray
-            ->List.map(x => {
-                Js.log(x);
-                Some(x)->AST.parseRequires;
-              })
+            ->List.map(x => Some(x)->AST.parseRequires)
             ->List.flatten
             ->List.map(x => x->ImportSet.Import.v(~path=t.target))
           | Error(_) => []

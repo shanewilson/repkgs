@@ -3,13 +3,13 @@ type missingPaths = {
   types: List.t(string),
   bin: List.t(string),
   files: List.t(string),
+  missingLocalImports: ImportSet.t,
+  brokenLocalImports: ImportSet.t,
   errors: int,
 };
 type imports = {
-  missingLocalImports: ImportSet.t,
   missingExternalImports: ImportSet.t,
   unusedExternalImports: ImportSet.t,
-  brokenLocalImports: ImportSet.t,
   errors: int,
 };
 type inPack = {
@@ -74,22 +74,22 @@ let v = (pkg: Package.t): t => {
       types,
       bin,
       files,
+      missingLocalImports,
+      brokenLocalImports,
       errors:
         main->List.length
         + types->List.length
         + bin->List.length
-        + files->List.length,
+        + files->List.length
+        + missingLocalImports->ImportSet.size
+        + brokenLocalImports->ImportSet.size,
     },
     imports: {
-      missingLocalImports,
       missingExternalImports,
       unusedExternalImports,
-      brokenLocalImports,
       errors:
-        + missingLocalImports->ImportSet.size
-        + missingExternalImports->ImportSet.size
-        + unusedExternalImports->ImportSet.size
-        + brokenLocalImports->ImportSet.size,
+        missingExternalImports->ImportSet.size
+        + unusedExternalImports->ImportSet.size,
     },
   };
 };

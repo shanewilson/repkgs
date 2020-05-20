@@ -3,11 +3,7 @@
   "version": "1.0.0",
   "files": [
     "index.js",
-    "index.jss",
+    "utils.js",
     "tsconfig.json"
-  ],
-  "dependencies": {
-    "beep": "1.0.0",
-    "@workspace-a/package-a": "*"
-  }
+  ]
 }
