@@ -19,11 +19,11 @@
     ]
   },
   "devDependencies": {
-    "@types/node": "^13.9.1",
-    "bs-platform": "^7.2.2",
+    "@types/node": "^14.0.4",
+    "bs-platform": "^7.3.2",
     "esm": "^3.2.25",
-    "gentype": "^3.15.0",
-    "typescript": "^3.8.3"
+    "gentype": "^3.22.0",
+    "typescript": "^3.9.3"
   },
   "scripts": {
     "make": "bsb -clean-world -make-world",
@@ -33,16 +33,16 @@
   "dependencies": {
     "@elliottcable/bs-cmdliner": "^10.2.2",
     "cross-spawn": "^7.0.2",
-    "decco": "^1.2.0",
+    "decco": "^1.2.1",
     "fast-glob": "^3.2.2",
-    "flow-parser": "^0.123.0",
+    "flow-parser": "^0.125.1",
     "ink": "^2.7.1",
     "js-yaml": "^3.13.1",
     "react": "^16.13.1",
-    "reason-react": "^0.7.0"
+    "reason-react": "^0.8.0"
   },
   "volta": {
-    "node": "13.9.0",
-    "yarn": "1.22.0"
+    "node": "14.2.0",
+    "yarn": "1.22.4"
   }
 }
