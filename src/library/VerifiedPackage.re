@@ -1,15 +1,26 @@
-type packed = {
+type missingPaths = {
+  main: List.t(string),
+  types: List.t(string),
+  bin: List.t(string),
+  files: List.t(string),
+  missingLocalImports: ImportSet.t,
+  brokenLocalImports: ImportSet.t,
+  errors: int,
+};
+type imports = {
+  missingExternalImports: ImportSet.t,
+  unusedExternalImports: ImportSet.t,
+  errors: int,
+};
+type inPack = {
   files: ImportSet.t,
   imports: ImportSet.t,
 };
 type t = {
   pkg: Package.t,
-  main: List.t(string),
-  types: List.t(string),
-  bin: List.t(string),
-  files: List.t(string),
-  errors: int,
-  packed,
+  missingPaths,
+  imports,
+  inPack,
 };
 let findMissingPaths = (ls, ~path) =>
   ls->List.keep(_, f =>
@@ -22,44 +33,63 @@ let findMissingPaths = (ls, ~path) =>
           }
         }
       );
+let getOpt = (f, ~path) =>
+  switch (f) {
+  | Some(x) => x->findMissingPaths(~path)
+  | None => []
+  };
 let v = (pkg: Package.t): t => {
   let path = pkg->Package.path;
-  let main =
-    switch (pkg->Package.packageJson->PackageJson.main) {
-    | Some(x) => [x]->findMissingPaths(~path)
-    | None => []
-    };
-  let types =
-    switch (pkg->Package.packageJson->PackageJson.types) {
-    | Some(x) => [x]->findMissingPaths(~path)
-    | None => []
-    };
-  let bin =
-    switch (pkg->Package.packageJson->PackageJson.bin) {
-    | Some(xs) => xs->findMissingPaths(~path)
-    | None => []
-    };
-  let files =
-    pkg->Package.packageJson->PackageJson.files->findMissingPaths(~path);
-  let packed: packed =
-    switch (pkg->Package.packageJson->PackageJson.files) {
-    | ["*"] => {files: ImportSet.empty, imports: ImportSet.empty}
-    | _ =>
-      let fs = pkg->Pack.gatherFilesFromJson;
-      {files: fs, imports: fs->Pack.findImports};
-    };
+  let json = pkg->Package.packageJson;
+  let main = json->PackageJson.main->Option.map(x => [x])->getOpt(~path);
+  let types = json->PackageJson.types->Option.map(x => [x])->getOpt(~path);
+  let bin = json->PackageJson.bin->getOpt(~path);
+  let files = Some(json->PackageJson.files)->getOpt(~path);
+
+  let inPack = {
+    let fs = pkg->Pack.gatherFilesFromJson;
+    {files: fs, imports: fs->Pack.findImports};
+  };
+
+  let missingLocalImports =
+    ImportSet.diff(inPack.imports->ImportSet.keepLocalImports, inPack.files);
+  let brokenLocalImports =
+    ImportSet.diff(inPack.imports->ImportSet.keepBrokenImports, inPack.files);
+  let missingExternalImports =
+    ImportSet.diff(
+      inPack.imports->ImportSet.keepExternalImports,
+      pkg->Package.dependencies,
+    );
+  let unusedExternalImports =
+    ImportSet.diff(
+      pkg->Package.dependencies,
+      inPack.imports->ImportSet.keepExternalImports,
+    );
 
   {
     pkg,
-    main,
-    types,
-    bin,
-    files,
-    errors:
-      main->List.length
-      + types->List.length
-      + bin->List.length
-      + files->List.length,
-    packed,
+    inPack,
+    missingPaths: {
+      main,
+      types,
+      bin,
+      files,
+      missingLocalImports,
+      brokenLocalImports,
+      errors:
+        main->List.length
+        + types->List.length
+        + bin->List.length
+        + files->List.length
+        + missingLocalImports->ImportSet.size
+        + brokenLocalImports->ImportSet.size,
+    },
+    imports: {
+      missingExternalImports,
+      unusedExternalImports,
+      errors:
+        missingExternalImports->ImportSet.size
+        + unusedExternalImports->ImportSet.size,
+    },
   };
 };

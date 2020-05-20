@@ -27,13 +27,13 @@ Repkgs works for single and multi-repos and adds a common interface for running 
 
 ## Commands
 
-### `verify-files`
+### `verify`
 
 ```
-❯ repkgs verify-files
+❯ repkgs verify
 ```
 
-`verify-files` uses the `package.json` to confirm that the published package will contain all required files.
+`verify` uses the `package.json` to confirm that the published package will contain all required files.
 
 #### Fields checked
 
@@ -61,6 +61,8 @@ Following best practices and setting the `files` field to keep your package size
 _How Repkgs helps_
 
 Repkgs will start with the patterns found in the `files` field of your `package.json` and recursively find all imported files. Any imported files not found in the bundle will be surfaced to protect you from publishing a broken package.
+
+#### Problem: dependencies missing from the package.json 
 
 #### Example Output
 

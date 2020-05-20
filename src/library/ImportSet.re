@@ -24,7 +24,7 @@ module Import = {
         );
     // External could also be ../../node_modules/@thing/beep
     // so need to handle that at some point
-    | _ => External({path, target: Path.v(import), import})
+    | _ => External({path, target: import->Path.v, import})
     };
   };
   let path =
@@ -63,6 +63,7 @@ let fromList = x => x->List.toArray->fromArray;
 let toArray = Set.toArray;
 let toList = Set.toList;
 let diff = Set.diff;
+let size = Set.size;
 
 let keepLocalImports =
   Set.keep(

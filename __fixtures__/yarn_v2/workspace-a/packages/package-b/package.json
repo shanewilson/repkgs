@@ -1,7 +1,4 @@
 {
   "name": "@workspace-a/package-b",
-  "version": "1.0.0",
-  "files": [
-    "beep"
-  ]
+  "version": "1.0.0"
 }

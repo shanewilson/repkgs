@@ -58,7 +58,7 @@ module ListCmd = {
   };
 };
 
-module VerifyFilesCmd = {
+module VerifyCmd = {
   let runCommand =
       (
         cwd,
@@ -75,7 +75,7 @@ module VerifyFilesCmd = {
         sinceLatestTag,
       ) => {
     Ink.render(
-      <VerifyFiles
+      <Verify
         cwd
         workspaces
         includePrivate
@@ -93,7 +93,7 @@ module VerifyFilesCmd = {
   };
 
   let cmd = {
-    let doc = "verify the files you expect to ship exist";
+    let doc = "verify packages before publishing";
 
     (
       Term.(
@@ -111,9 +111,9 @@ module VerifyFilesCmd = {
         $ Args.Changed.sinceBranch
         $ Args.Changed.sinceLatestTag
       ),
-      Term.info("verify-files", ~doc, ~sdocs=Manpage.s_common_options),
+      Term.info("verify", ~doc, ~sdocs=Manpage.s_common_options),
     );
   };
 };
 
-let cmds = [ListCmd.cmd, VerifyFilesCmd.cmd];
+let cmds = [ListCmd.cmd, VerifyCmd.cmd];

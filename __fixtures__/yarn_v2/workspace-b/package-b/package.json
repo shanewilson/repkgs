@@ -7,5 +7,9 @@
     "*.js",
     "src",
     "main/*"
-  ]
+  ],
+  "dependencies": {
+    "externalA": "*",
+    "externalC": "*"
+  }
 }

@@ -23,7 +23,7 @@ let decode = json => {
   };
 };
 
-let rec parseRequires = (~octx=None, oast): list(string) => {
+let rec parseRequires = (~octx=None, oast: option(t)): list(string) => {
   switch (oast, octx) {
   | (None, _) => []
   | (Some(ast), Some(ctx)) =>

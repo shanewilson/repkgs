@@ -16,8 +16,8 @@ let gatherFilesFromJson = pkg => {
   ->List.map(s => {
       switch (path->Path.addSeg(s)->Fs.v) {
       | File(_) => s
-      // can I use / for this?
-      // This is just until I figure out a nice way
+      // 1. can I use / for this?
+      // 2. This is just until I figure out a nice way
       // to deal with src files like jsx/tsx/ts
       // I want it to make sense rather than just
       // be a shotgun approach of file exists
@@ -31,6 +31,7 @@ let gatherFilesFromJson = pkg => {
     })
   ->Glob.v(~cwd=path)
   ->Glob.vmatch
+  ->List.keep(p => p->Path.toString->Js.String2.endsWith(".js"))
   ->List.map(x => ImportSet.Import.v(x->Path.toString, ~path))
   ->ImportSet.fromList;
 };
